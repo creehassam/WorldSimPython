@@ -47,25 +47,31 @@ class City:
 #Tile Functions
 
 def f_createMap(sizeX: int, sizeY: int):
+    global tiles
     a = []
     for x in range(sizeX):
         b = []
         for y in range(sizeY):
             b.append(Tile(x=x, y=y,type=random.randint(0, 3)))
         a.append(b)
-    return a
+    tiles = a
+    return tiles
 
 def f_infoTiles():
+    global tiles
+    print(tiles)
     x = len(tiles)
     y = len(tiles[0])
     return f"Tiles: ({x},{y})"
 
 def f_infoTile(x: int, y: int):
+    global tiles
     return repr(tiles[x][y])
         
 #Kingdom Functions
 
 def f_addKingdom(name: str, capital: object, money: int):
+    global kingdoms
     kingdomNames = [k.name for k in kingdoms]
     if name in kingdomNames:
         name = name + "(R)"
@@ -74,6 +80,7 @@ def f_addKingdom(name: str, capital: object, money: int):
     return kingdom
 
 def f_deleteKingdom(name: str):
+    global kingdoms
     n = 0
     for k in kingdoms:
         if name == k.name:
@@ -83,12 +90,14 @@ def f_deleteKingdom(name: str):
     return False
 
 def f_infoKingdoms():
+    global kingdoms
     r = ""
     for k in kingdoms:
         r = r + f"'{k.name}' capital:'{k.capitalName}' money:'{k.money}'\n"
     return r
                 
 def f_infoKingdom(name: str):
+    global kingdoms
     n = 0
     for k in kingdoms:
         if name == k.name:
@@ -97,6 +106,7 @@ def f_infoKingdom(name: str):
     return False
         
 def f_newCapital(kingdom: object, newCapital: object):
+    global kingdoms
     if f_infoKingdom(kingdom.name) != False:
         kingdom.capital = newCapital
         kingdom.capitalName = newCapital.name
@@ -106,9 +116,10 @@ def f_newCapital(kingdom: object, newCapital: object):
 #City Functions
 
 def f_randomCity(name: str="no name", kingdom: object=None, pob: int=1, money: int=1):
+    global tiles
     while True:
-        x = random.randint(0, sizeMapX-1) #Create the coords for the city
-        y = random.randint(0, sizeMapY-1)
+        x = random.randint(0, len(tiles)-1) #Create the coords for the city
+        y = random.randint(0, len(tiles[0])-1)
         tile = tiles[x][y]
         
         if tile.type >= 1 and tile.type <= 2: #Verify if the tile is valid and call f_addCity
@@ -117,6 +128,8 @@ def f_randomCity(name: str="no name", kingdom: object=None, pob: int=1, money: i
             continue
 
 def f_addCity(name: str, kingdom: object, pob: int, money: int, x: int, y: int):
+    global citys
+    global kingdoms
     ifCapital = False
     if kingdom == None: #Verify if that kingdom exists, if not, create a new one
         kingdom = f_addKingdom(f"Kingdom_of_{name}", name, money)
@@ -132,7 +145,8 @@ def f_addCity(name: str, kingdom: object, pob: int, money: int, x: int, y: int):
     kingdom.citysNames.append(city.name)
     return city
     
-def f_deleteCity(name: str): 
+def f_deleteCity(name: str):
+    global citys 
     n = 0
     for c in citys:
         if name == c.name: #Search if city exists
@@ -145,12 +159,14 @@ def f_deleteCity(name: str):
     return False
 
 def f_infoCitys():
+    global citys
     r = ""
     for c in citys:
-        c = c + f"'{c.name}' from '{c.kingdom}'\n"
+        r = r + f"'{c.name}' from '{c.kingdom.name}'\n"
     return r
                 
 def f_infoCity(name: str):
+    global citys
     n = 0
     for c in citys:
         if name == c.name:
@@ -159,18 +175,10 @@ def f_infoCity(name: str):
     return False
     
 #Variables
-
-sizeMapX = 10
-sizeMapY = 10
 tiles = []
 citys = []
 kingdoms = []
 
 #Start
 
-tiles = f_createMap(sizeMapX, sizeMapY)
-city1 = f_randomCity("puebla")
-print(city1)
-tile1 = tiles[city1.x][city1.y]
-print(tile1)
-print(city1.kingdom)
+tiles = f_createMap(10, 10)

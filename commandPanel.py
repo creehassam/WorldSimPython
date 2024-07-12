@@ -14,14 +14,23 @@ def f_help():
     msg = "\nhelp --> show all the commands\ntest --> test message\nexit --> exit of the command panel\ninfo_object --> name of the object --> show the __repr__ of a object"
     f_printer(msg)
 
-def f_checkInput(function, paramaters=0):
-    if paramaters == 0:
+def f_checkInput(function, numParamaters=0):
+    paramaters = []
+    for x in answer[1:]: #Convert the int paramaters to int values
+        try:
+            x = int(x)
+            paramaters.append(x)
+        except:
+            paramaters.append(x)
+    #f_printer(paramaters, "debug") Debug issues       
+    if numParamaters == 0: #Pass the values to the function
         return function()
-    elif len(answer)-1 == paramaters:
-        return function(*answer[1:])
+    elif len(answer)-1 == numParamaters:
+        return function(*paramaters)
     else:
-        f_printer(f"Paramaters aren't correct. Expected:{paramaters}, Recieved:{len(answer)-1}")
+        f_printer(f"Paramaters aren't correct. Expected:{numParamaters}, Recieved:{len(answer)-1}")
         return False    
+
 
 while True:
     try:
@@ -40,7 +49,9 @@ while True:
         elif answer[0].lower() == "createmap": #createmap
             newTiles = f_checkInput(f_createMap, 2)
             if newTiles != False:
+                tiles = []
                 tiles = newTiles
+                print(tiles)
                 citys = []
                 kingdoms = []
                 f_printer("Map created")
