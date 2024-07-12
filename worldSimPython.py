@@ -55,6 +55,11 @@ def f_createMap(sizeX: int, sizeY: int):
         a.append(b)
     return a
 
+def f_infoTiles():
+    x = len(tiles)
+    y = len(tiles[0])
+    return f"Tiles: ({x},{y})"
+
 def f_infoTile(x: int, y: int):
     return repr(tiles[x][y])
         
@@ -76,6 +81,12 @@ def f_deleteKingdom(name: str):
             return True
         n += 1
     return False
+
+def f_infoKingdoms():
+    r = ""
+    for k in kingdoms:
+        r = r + f"'{k.name}' capital:'{k.capitalName}' money:'{k.money}'\n"
+    return r
                 
 def f_infoKingdom(name: str):
     n = 0
@@ -132,6 +143,12 @@ def f_deleteCity(name: str):
             return True
         n += 1
     return False
+
+def f_infoCitys():
+    r = ""
+    for c in citys:
+        c = c + f"'{c.name}' from '{c.kingdom}'\n"
+    return r
                 
 def f_infoCity(name: str):
     n = 0
