@@ -11,14 +11,19 @@ def f_input(who="INPUT"):
     return input(f"{who}>")
 
 def f_help():
-    msg = "\nhelp --> show all the commands\ntest --> test message\nexit --> exit of the command panel\ninfo_object --> name of the object --> show the __repr__ of a object"
+    msg = "Use the readme.txt for better info\nhelp --> show all the commands\ntest --> test message\nexit --> exit of the command panel\ncreatemap\ninfotiles\ninfotile\naddkingdom\ndeletekingdom\ninfokingdoms\ninfokingdom\nnewcapital\nrandomcity\naddcity\ndeletecity\ninfocitys\ninfocity"
     f_printer(msg)
 
 def f_checkInput(function, numParamaters=0):
     paramaters = []
     for x in answer[1:]: #Convert the int paramaters to int values
         try:
-            x = int(x)
+            if x[-1] == "*":
+                x = f_findObject(x[:-1])
+                if x == False:
+                    x = int(x)
+            else:
+                x = int(x)
             paramaters.append(x)
         except:
             paramaters.append(x)
@@ -31,6 +36,14 @@ def f_checkInput(function, numParamaters=0):
         f_printer(f"Paramaters aren't correct. Expected:{numParamaters}, Recieved:{len(answer)-1}")
         return False    
 
+def f_findObject(name):
+    for k in kingdoms:
+        if k.name == name:
+            return k
+    for c in citys:
+        if c.name == name:
+            return c
+    return False
 
 while True:
     try:
@@ -51,7 +64,6 @@ while True:
             if newTiles != False:
                 tiles = []
                 tiles = newTiles
-                print(tiles)
                 citys = []
                 kingdoms = []
                 f_printer("Map created")
@@ -117,7 +129,7 @@ while True:
         else:
             f_printer(f"command '{answer[0]}' is not recognizable", "error")
     except Exception as error:
-        f_printer(f"error unexpected: '{error}'", "error")
+        f_printer(f"error unexpected: {error}", "error")
         
 
   

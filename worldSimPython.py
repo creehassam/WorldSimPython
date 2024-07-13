@@ -21,7 +21,7 @@ class Kingdom:
         self.name = name
         self.capital = capital
         self.capitalName = capital
-        self.citys = []
+        self.kingdomCitys = []
         self.citysNames = []
         self.money = money
         
@@ -59,7 +59,6 @@ def f_createMap(sizeX: int, sizeY: int):
 
 def f_infoTiles():
     global tiles
-    print(tiles)
     x = len(tiles)
     y = len(tiles[0])
     return f"Tiles: ({x},{y})"
@@ -131,7 +130,7 @@ def f_addCity(name: str, kingdom: object, pob: int, money: int, x: int, y: int):
     global citys
     global kingdoms
     ifCapital = False
-    if kingdom == None: #Verify if that kingdom exists, if not, create a new one
+    if type(kingdom) != Kingdom: #Verify if that kingdom exists, if not, create a new one
         kingdom = f_addKingdom(f"Kingdom_of_{name}", name, money)
         ifCapital = True
             
@@ -141,7 +140,7 @@ def f_addCity(name: str, kingdom: object, pob: int, money: int, x: int, y: int):
     if ifCapital == True: 
         f_newCapital(kingdom, city) #Verify if is a capital
         
-    kingdom.citys.append(city) #Add the city info
+    kingdom.kingdomCitys.append(city) #Add the city info
     kingdom.citysNames.append(city.name)
     return city
     
@@ -151,9 +150,9 @@ def f_deleteCity(name: str):
     for c in citys:
         if name == c.name: #Search if city exists
             citys.pop(n) #Delete the city from citys and from kingdom
-            c.kingdom.citys.pop(c.kingdom.citys.index(c.name)) 
+            c.kingdom.kingdomCitys.pop(c.kingdom.kingdomCitys.index(c.name)) 
             if c.ifCapital == True: #If is a capital, create a new capital
-                f_newCapital(c.kingdom, c.kingdom.citys[0])
+                f_newCapital(c.kingdom, c.kingdom.kingdomCitys[0])
             return True
         n += 1
     return False
