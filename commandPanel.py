@@ -18,6 +18,8 @@ def f_checkInput(function, numParamaters=0):
     paramaters = []
     for x in answer[1:]: #Convert the int paramaters to int values
         try:
+            if x == " ":
+                continue
             if x[-1] == "*":
                 x = f_findObject(x[:-1])
                 if x == False:

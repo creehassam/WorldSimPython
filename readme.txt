@@ -1,4 +1,4 @@
-Actual Stage --> Make the documentation
+Actual Stage --> Testing
 Actual Version --> 
 
 
@@ -8,37 +8,37 @@ This is for "worldSimPython.py". "commandPanel.py" isn't really important for do
 
 Tile
 -Attributes
-    -x
-    -y
-    -type
-    -plants
-    -animals
+    -x: int
+    -y: int
+    -type: int
+    -plants: int
+    -animals: int
 -Methods
     -__init__ 
     -__repr__
 
 Kingdom
 -Attributes
-    -name
-    -capital
-    -capitalName
-    -citys
-    -citysNames
-    -money
+    -name: str
+    -capital: object
+    -capitalName: str
+    -kingdomCitys: list of objects
+    -citysNames: list of str
+    -money: int
 -Methods
     -__init__
     -__repr__
 
 City
 -Attributes
-    -name
-    -kingdom
-    -pob
-    -money
-    -resources
-    -x
-    -y
-    -ifCapital
+    -name: str
+    -kingdom: object
+    -pob: int
+    -money: int 
+    -resources: list of int
+    -x: int 
+    -y: int 
+    -ifCapital: bool
 -Methods
     -__init__
     -__repr__
@@ -67,3 +67,17 @@ CityFunctions
 -f_infoCity --> name: str --> Return the info of a specific city --> repr(c): str / False: Bool
 
 -----Errors/Bugs/Glitches/etc-----
+
+id --> command --> error or output --> how --> possible explanation
+
+Suggests
+-A reset button
+
+Bugs
+#B0001 --> a lot of functions --> double panel message, one message unexpected --> different hows --> the second message actives despite it shouldn't
+#B0004 --> f_deleteKingdom --> Doesn't return a error message when the kingdom isn't deleted and viceversa --> INPUT> deletekingdom randominput --> idk
+#B0008 --> f_deleteCity --> It just doesn't work for any value dou --> any --> idk
+#B0009 --> f_infoCity --> It just doesn't work for any value dou --> any --> idk
+
+Errors
+#E0006 --> f_newCapital --> It always return error unexpected: 'str' object has no attribute 'name' --> any --> maybe with the paramaters

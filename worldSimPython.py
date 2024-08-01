@@ -49,6 +49,10 @@ class City:
 def f_createMap(sizeX: int, sizeY: int):
     global tiles
     a = []
+    if type(sizeX) != int or type(sizeY) != int:
+        return False
+    if sizeX <= 0 or sizeY <= 0 or sizeX > 1000 or sizeY > 1000:
+        return False
     for x in range(sizeX):
         b = []
         for y in range(sizeY):
@@ -65,11 +69,20 @@ def f_infoTiles():
 
 def f_infoTile(x: int, y: int):
     global tiles
+    if type(x) != int or type(y) != int:
+        return False
+    if x >= len(tiles) or y >= len(tiles[0]) or x < 0 or y < 0:
+        return False
     return repr(tiles[x][y])
         
 #Kingdom Functions
 
 def f_addKingdom(name: str, capital: object, money: int):
+    if type(name) != str:
+        name = str(name)
+    if type(money) != int:
+        money = 0    
+        
     global kingdoms
     kingdomNames = [k.name for k in kingdoms]
     if name in kingdomNames:
@@ -127,8 +140,24 @@ def f_randomCity(name: str="no name", kingdom: object=None, pob: int=1, money: i
             continue
 
 def f_addCity(name: str, kingdom: object, pob: int, money: int, x: int, y: int):
+    if type(name) != str:
+        name = str(name)
+    if type(pob) != int:
+        pob = 0 
+    if type(money) != int:
+        money = 0
+    if type(x) != int:
+        x = 0 
+    if type(y) != int:
+        y = 0     
+        
     global citys
     global kingdoms
+    global tiles
+    
+    if tiles[x][y].type < 1 or tiles[x][y].type > 2:
+        return False
+    
     ifCapital = False
     if type(kingdom) != Kingdom: #Verify if that kingdom exists, if not, create a new one
         kingdom = f_addKingdom(f"Kingdom_of_{name}", name, money)
@@ -149,10 +178,12 @@ def f_deleteCity(name: str):
     n = 0
     for c in citys:
         if name == c.name: #Search if city exists
-            citys.pop(n) #Delete the city from citys and from kingdom
-            c.kingdom.kingdomCitys.pop(c.kingdom.kingdomCitys.index(c.name)) 
-            if c.ifCapital == True: #If is a capital, create a new capital
+            c.kingdom.kingdomCitys.pop(c.kingdom.kingdomCitys.index(c)) #Delete the city from citys and from kingdom
+            if len(c.kingdom.kingdomCitys) == 0: #Delete the kingdom if it doesn't have any city
+                f_deleteKingdom(c.kingdom.name) 
+            elif c.ifCapital == True: #If is a capital, create a new capital
                 f_newCapital(c.kingdom, c.kingdom.kingdomCitys[0])
+            citys.pop(n)
             return True
         n += 1
     return False
