@@ -140,9 +140,13 @@ def f_createMap(sizeX: int, sizeY: int):
         return False
     if sizeX <= 0 or sizeY <= 0 or sizeX > 1000 or sizeY > 1000:
         return False
+    
     for x in range(sizeX): #Create the map and the tiles
         b = []
         for y in range(sizeY):
+            if x == 0 or x == sizeX-1 or y == 0 or y == sizeX-1:
+                b.append(Tile(x=x, y=y,type=0))
+                continue
             b.append(Tile(x=x, y=y,type=random.randint(0, 3)))
         a.append(b)
     tiles = a
