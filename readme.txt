@@ -92,12 +92,3 @@ World Functions
 -----Errors/Bugs/Glitches/etc-----
 
 id --> command --> error or output --> how --> possible explanation
-
-Suggests
--A reset button
-
-Bugs 7/9 fixed
-#B0001 --> a lot of functions --> double panel message, one message unexpected --> different hows --> the second message actives despite it shouldn't
-#B0004 --> f_deleteKingdom --> Doesn't return a error message when the kingdom isn't deleted and viceversa --> INPUT> deletekingdom randominput --> idk
-
-Errors 6/6 fixed

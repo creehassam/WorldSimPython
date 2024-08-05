@@ -84,9 +84,9 @@ class City:
         tile.plants -= int((self.pob * foodWorkers * efficiencyFood + self.pob * lumberjackWorkers * efficiencyWood)*0.001)
 
         #pob
-        birthRate = 0.0002 #birth rate per person
-        deathRate = 0.00005 #death rate per person
-        self.pob += int(self.pob * birthRate * min(1, self.resources[0] / (self.pob * foodConsumed)) - self.pob * deathRate)
+        birthRate = 0.0001 #birth rate per person
+        deathRate = 0.00006 #death rate per person
+        self.pob += math.ceil((self.pob * birthRate * min(1, self.resources[0] / (self.pob * foodConsumed)) - self.pob * deathRate))
 
         if self.pob <= 0:
             f_deleteCity(self.name)
@@ -97,15 +97,17 @@ class City:
         self.money += int(foodProduced * 0.5 * valueFood) 
 
         #Create a new city
-        if (self.money / self.pob) > 2 and self.resources[0] > 10 and self.resources[1] > 100 and self.resources[2] > 5000 and self.money > 5000 and self.pob > 1000:
+        if (self.money / self.pob) > 10 and self.resources[0] > 10 and self.resources[1] > 100 and self.resources[2] > 5000 and self.money > 50000 and self.pob > 1000:
             n = True
             for x in range(-1, 2):
                 for y in range(-1, 2):
+                    if self.x + x < 0 or self.y + y < 0:
+                        continue
                     if tiles[self.x + x][self.y + y].type >= 1 and tiles[self.x + x][self.y + y].type <= 2 and tiles[self.x + x][self.y + y].ifCity == False and n == True:
                         f_addCity(f_generateNameRandom(4), self.kingdom, 1000, 500, self.x + x, self.y + y) #Add new city and stuff
                         self.resources[0] -= 10
                         self.resources[2] -= 5000
-                        self.money -= 5000
+                        self.money -= 50000
                         self.pob -= 1000
                         n = False
         
@@ -333,7 +335,7 @@ def f_cycle(days: int=1):
                 if tiles[x][y].ifCity == True: #Verify if a city exists, if so, simulate it
                     tiles[x][y].city.cycle()
         
-        if days > 100:
+        if days > 500:
             if d == int(days / 10): #Just printing the percents with a horrible 'if statements' code
                 print("10%")
             elif d == int(days*2 / 10):
