@@ -1,4 +1,4 @@
-Actual Stage --> World Functions
+Actual Stage --> Output update
 Actual Version --> 
 
 
@@ -66,10 +66,11 @@ functionName --> Paramaters --> What does --> Output
 
 Basic Functions
 -f_generateNameRandom --> length: int=6 --> generates a random name with the structure consonant-vowel-consonant-vowel... --> name: str
+-f_day --> none --> return the value of day --> day: int
 
 Tile Functions
 -f_createMap --> sizeX: int, sizeY: int --> create a new list(tiles) of tiles --> tiles: list
--f_infoTiles --> none --> return the size of the list tiles --> f"Tiles: ({x},{y})": str
+-f_infoTiles --> details: int=0 --> return the size of the list tiles --> f"Tiles: ({x},{y})": str
 -f_infoTile --> x: int, y: int --> Return the repr of a specific tile --> repr(tiles[x][y]): str
 
 Kingdom Functions
@@ -91,4 +92,3 @@ World Functions
 -f_cycle --> days: int=1 --> Simulates the map for x time of days-->
 -----Errors/Bugs/Glitches/etc-----
 
-id --> command --> error or output --> how --> possible explanation

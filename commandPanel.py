@@ -1,4 +1,6 @@
 from worldSimPython import *
+from graphs import *
+import traceback
 
 def f_test():
     f_printer("test message")
@@ -162,5 +164,5 @@ while True:
         else:
             f_printer(f"command '{answer[0]}' is not recognizable", "error")
     except Exception as error:
-        f_printer(f"error unexpected: {error}", "error")
+        f_printer(f"error unexpected: {traceback.format_exc()}", "error")
          

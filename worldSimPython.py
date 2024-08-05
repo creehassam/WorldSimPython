@@ -104,7 +104,7 @@ class City:
                     if self.x + x < 0 or self.y + y < 0:
                         continue
                     if tiles[self.x + x][self.y + y].type >= 1 and tiles[self.x + x][self.y + y].type <= 2 and tiles[self.x + x][self.y + y].ifCity == False and n == True:
-                        f_addCity(f_generateNameRandom(4), self.kingdom, 1000, 500, self.x + x, self.y + y) #Add new city and stuff
+                        f_addCity(f_generateNameRandom(6), self.kingdom, 1000, 500, self.x + x, self.y + y) #Add new city and stuff
                         self.resources[0] -= 10
                         self.resources[2] -= 5000
                         self.money -= 50000
@@ -138,7 +138,7 @@ def f_createMap(sizeX: int, sizeY: int):
     a = []
     if type(sizeX) != int or type(sizeY) != int: #Checking for errors
         return False
-    if sizeX <= 0 or sizeY <= 0 or sizeX > 1000 or sizeY > 1000:
+    if sizeX <= 0 or sizeY <= 0 or sizeX > 100 or sizeY > 100:
         return False
     
     for x in range(sizeX): #Create the map and the tiles
@@ -333,8 +333,8 @@ def f_start(sizeX: int, sizeY: int, numKingdoms: int=1):
     kingdoms = []
 
     for _ in range(numKingdoms): #Add new kingdoms
-        k = f_addKingdom(f_generateNameRandom(6), None, 10000, 500)
-        c = f_randomCity(f_generateNameRandom(4), k, 10000, 500)
+        k = f_addKingdom(f_generateNameRandom(8), None, 10000, 500)
+        c = f_randomCity(f_generateNameRandom(6), k, 10000, 500)
         f_newCapital(k, c)
     return True
 
