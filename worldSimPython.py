@@ -116,6 +116,7 @@ class City:
 #Basic Functions
 
 def f_generateNameRandom(length: int=6):
+
     name = ""
     consonants = ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z"]
     vowels = ["a", "e", "i", "o", "u"]
@@ -125,6 +126,10 @@ def f_generateNameRandom(length: int=6):
         else:
             name = name + vowels[random.randint(0, len(vowels)-1)]
     return name        
+
+def f_day():
+    global day
+    return day
 
 #Tile Functions
 
@@ -282,10 +287,17 @@ def f_deleteCity(name: str):
         n += 1
     return False
 
-def f_infoCitys():
+def f_infoCitys(details: int=0):
     global citys
+    global kingdoms
     r = ""
-    for c in citys:
+    if details == 1:
+        for k in kingdoms: 
+            for c in k.kingdomCitys:
+                r = r + repr(c) + "\n"
+        return r
+    
+    for c in citys: #No details
         r = r + f"'{c.name}' from '{c.kingdom.name}'\n"
     return r
                 
@@ -327,6 +339,7 @@ def f_cycle(days: int=1):
     global tiles
     global citys
     global kingdoms
+    global day
 
     for d in range(days):
         for x in range(len(tiles)):
@@ -334,6 +347,7 @@ def f_cycle(days: int=1):
                 tiles[x][y].cycle() #Tiles simulation
                 if tiles[x][y].ifCity == True: #Verify if a city exists, if so, simulate it
                     tiles[x][y].city.cycle()
+        day += 1
         
         if days > 500:
             if d == int(days / 10): #Just printing the percents with a horrible 'if statements' code
@@ -371,6 +385,7 @@ def f_cycle(days: int=1):
 tiles = []
 citys = []
 kingdoms = []
+day = 0
 
 #Start
 

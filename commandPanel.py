@@ -32,7 +32,7 @@ def f_checkInput(function, numParamaters=0):
             paramaters.append(x)
         except:
             paramaters.append(x)
-    #f_printer(paramaters, "debug") Debug issues       
+    #f_printer(paramaters, "debug") #Debug issues       
     if numParamaters == 0: #Pass the values to the function
         return function()
     elif len(answer)-1 == numParamaters:
@@ -137,7 +137,7 @@ while True:
                 f_printer("City not deleted", "error")
         
         elif answer[0].lower() == "infocitys" and debug: #infocitys
-            f_printer(f_checkInput(f_infoCitys))
+            f_printer(f_checkInput(f_infoCitys, 1))
                 
         elif answer[0].lower() == "infocity" and debug: #infocity
             r = f_checkInput(f_infoCity, 1)
@@ -155,6 +155,9 @@ while True:
         elif answer[0].lower() == "cycle": #cycle
             if f_checkInput(f_cycle, 1) != False:
                 f_printer("Simulation Completed")
+
+        elif answer[0].lower() == "day": #day
+            f_printer(f_day())
 
         else:
             f_printer(f"command '{answer[0]}' is not recognizable", "error")
