@@ -16,31 +16,37 @@ def f_help():
     msg = "Use the readme.txt for better info\nhelp --> show all the commands\ntest --> test message\ndebug --> Switchs between debug mode and user mode\nexit --> exit of the command panel"
     f_printer(msg)
 
-def f_checkInput(function, numParamaters=0):
-    paramaters = []
+def f_checkInput(function, numParameters=0):
+    parameters = []
     for x in answer[1:]: #Convert the int paramaters to int values
         try:
             if x == " ":
                 continue
-            elif x[-1] == "*":
+            elif x[-1] == "*": #Searchs a object with x name
                 x = f_findObject(x[:-1])
                 if x == False:
                     x = int(x)
-            elif x[-1] == "#":
+            elif x[-1] == "#": #Generates a random name with x characters
                 x = x[:-1]
                 x = int(x)
+                parameters.append(f_generateNameRandom(x))
+            elif x == "$": #Adds tiles, kingdoms and citys as paramaters
+                parameters.append(tiles)
+                parameters.append(kingdoms)
+                parameters.append(citys)
+                continue
             else:
                 x = int(x)
-            paramaters.append(x)
+            parameters.append(x)
         except:
-            paramaters.append(x)
-    #f_printer(paramaters, "debug") #Debug issues       
-    if numParamaters == 0: #Pass the values to the function
+            parameters.append(x)
+    #f_printer(parameters, "debug") #Debug issues       
+    if numParameters == 0: #Pass the values to the function
         return function()
-    elif len(answer)-1 == numParamaters:
-        return function(*paramaters)
+    elif len(parameters) == numParameters:
+        return function(*parameters)
     else:
-        f_printer(f"Paramaters aren't correct. Expected:{numParamaters}, Recieved:{len(answer)-1}")
+        f_printer(f"Parameters aren't correct. Expected:{numParameters}, Recieved:{len(parameters)}")
         return False    
 
 def f_findObject(name):
@@ -57,9 +63,10 @@ debug = False
 
 while True:
     try:
+        tiles, kingdoms, citys = f_updateLists()
         answer = f_input()
         answer = answer.split(" ")
-        
+
         #---Simple Commands---
 
         if answer[0].lower() == "test": #test
@@ -160,6 +167,10 @@ while True:
 
         elif answer[0].lower() == "day": #day
             f_printer(f_day())
+
+        elif answer[0].lower() == "graph": #graph
+            if f_checkInput(f_graph, 6) == False:
+                f_printer("Graph wasn't displayed")
 
         else:
             f_printer(f"command '{answer[0]}' is not recognizable", "error")

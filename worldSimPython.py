@@ -15,6 +15,8 @@ class Tile:
         self.animals = tileTypeAnimals[type]
         self.ifCity = False
         self.city = None
+        self.Hplants = [self.plants]
+        self.Hanimals = [self.animals]
         
     def __repr__(self):
         return f"Tile ({self.x},{self.y}): type={self.type}, plants={self.plants}, animals={self.animals}"
@@ -32,6 +34,8 @@ class Tile:
             animalsMortality = [0, 0.001, 0.001, 0]
             self.plants = int(max(plants + (rateGrowPlants[typeTile] * plants) * (1 - plants / capacityPlants[typeTile]) - (plantsConsumed[typeTile] * animals) + random.randint(-10, 10), 1))
             self.animals = int(max(animals + (rateGrowAnimals[typeTile] * animals) * (1 - animals / capacityAnimals[typeTile]) * (plants / capacityPlants[typeTile]) - (animalsMortality[typeTile] * animals) - (0.01 * animals / plants + 0.001) + random.randint(-2, 2), 1))
+        self.Hplants.append(self.plants)
+        self.Hanimals.append(self.animals)
             
 class Kingdom:
     def __init__(self, name: str, capital: object, pob: int, money: int):
@@ -42,6 +46,8 @@ class Kingdom:
         self.citysNames = []
         self.pob = pob
         self.money = money
+        self.Hpob = [pob]
+        self.Hmoney = [money]
         
     def __repr__(self):
         return f"Kingdom '{self.name}'. citys={self.citysNames}, capital={self.capitalName}, pob={self.pob}, money={self.money}"
@@ -56,6 +62,8 @@ class City:
         self.x = x
         self.y = y
         self.ifCapital = ifCapital
+        self.Hpob = [pob]
+        self.Hmoney = [money]
         
     def __repr__(self):
         return f"City '{self.name}' from '{self.kingdom.name}' in ({self.x},{self.y}): pob={self.pob}, money={self.money} resources={self.resources}"
@@ -111,6 +119,9 @@ class City:
                         self.pob -= 1000
                         n = False
         
+        self.Hpob.append(self.pob)
+        self.Hmoney.append(self.money)
+        
 #Functions
 
 #Basic Functions
@@ -130,6 +141,10 @@ def f_generateNameRandom(length: int=6):
 def f_day():
     global day
     return day
+
+def f_updateLists():
+    global tiles, kingdoms, citys
+    return tiles, kingdoms, citys
 
 #Tile Functions
 
@@ -246,9 +261,7 @@ def f_addCity(name: str, kingdom: object, pob: int, money: int, x: int, y: int):
     if type(y) != int:
         y = 0     
         
-    global citys
-    global kingdoms
-    global tiles
+    global tiles, kingdoms, citys
     
     if tiles[x][y].type < 1 or tiles[x][y].type > 2:
         return False
@@ -272,8 +285,7 @@ def f_addCity(name: str, kingdom: object, pob: int, money: int, x: int, y: int):
     return city
     
 def f_deleteCity(name: str):
-    global citys
-    global tiles 
+    global tiles, citys 
     n = 0
     for c in citys:
         if name == c.name: #Search if city exists
@@ -373,22 +385,24 @@ def f_cycle(days: int=1):
             elif d == int(days*9 / 10):
                 print("90%")
                 
-    #Update kingdoms info
-    for k in kingdoms:
-        money = 0
-        pob = 0
-        for c in k.kingdomCitys:
-            money += c.money
-            pob += c.pob
-        k.money = money
-        k.pob = pob
+        #Update kingdoms info
+        for k in kingdoms:
+            pob = 0
+            money = 0
+            for c in k.kingdomCitys:
+                pob += c.pob
+                money += c.money
+            k.pob = pob
+            k.money = money
+            k.Hpob.append(pob)
+            k.Hmoney.append(money)
     return True
 
 
 #Variables
 tiles = []
-citys = []
 kingdoms = []
+citys = []
 day = 0
 
 #Start
