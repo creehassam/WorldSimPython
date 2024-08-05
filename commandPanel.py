@@ -95,7 +95,7 @@ while True:
             f_printer(f_checkInput(f_infoTile, 2))
             
         elif answer[0].lower() == "addkingdom" and debug: #addkingdom
-            if f_checkInput(f_addKingdom, 3) != False:
+            if f_checkInput(f_addKingdom, 4) != False:
                 f_printer("Kingdom created")
             else:
                 f_printer("Kingdom not created", "error")
@@ -151,6 +151,10 @@ while True:
         elif answer[0].lower() == "start": #start
             if f_checkInput(f_start, 3) != False:
                 f_printer("Map started")
+
+        elif answer[0].lower() == "cycle": #cycle
+            if f_checkInput(f_cycle, 1) != False:
+                f_printer("Simulation Completed")
 
         else:
             f_printer(f"command '{answer[0]}' is not recognizable", "error")

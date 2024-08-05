@@ -6,7 +6,7 @@ import math as math
 #Classes
 class Tile:
     def __init__(self, x: int, y: int, type: int):
-        tileTypePlants = [0, 100, 35, 0]
+        tileTypePlants = [0, 3000, 2000, 0]
         tileTypeAnimals = [0, 15, 10, 0]
         self.x = x
         self.y = y
@@ -20,29 +20,31 @@ class Tile:
         return f"Tile ({self.x},{self.y}): type={self.type}, plants={self.plants}, animals={self.animals}"
     
     def cycle(self):
-        plants = self.plants
-        animals = self.animals
-        typeTile = self.type
-        rateGrowPlants = [0, 0.1, 0.1, 0]
-        capacityPlants = [0, 5000, 4000, 0]
-        plantsConsumed = [0, 0.001, 0.001, 0]
-        rateGrowAnimals = [0, 0.04, 0.04, 0]
-        capacityAnimals = [0, 22, 20, 0]
-        animalsMortality = [0, 0.001, 0.001, 0]
-        self.plants = int(max(plants + (rateGrowPlants[typeTile] * plants) * (1 - plants / capacityPlants[typeTile]) - (plantsConsumed[typeTile] * animals) + random.randint(-50, 50), 1))
-        self.animals = int(max(animals + (rateGrowAnimals[typeTile] * animals) * (1 - animals / capacityAnimals[typeTile]) * (plants / capacityPlants[typeTile]) - (animalsMortality[typeTile] * animals) - (0.01 * animals / plants + 0.00001) + random.randint(-2, 2), 1))
-        
+        if self.type >= 1 and self.type <= 2:
+            plants = self.plants
+            animals = self.animals
+            typeTile = self.type
+            rateGrowPlants = [0, 0.1, 0.1, 0]
+            capacityPlants = [0, 5000, 4000, 0]
+            plantsConsumed = [0, 0.001, 0.001, 0]
+            rateGrowAnimals = [0, 0.04, 0.04, 0]
+            capacityAnimals = [0, 22, 20, 0]
+            animalsMortality = [0, 0.001, 0.001, 0]
+            self.plants = int(max(plants + (rateGrowPlants[typeTile] * plants) * (1 - plants / capacityPlants[typeTile]) - (plantsConsumed[typeTile] * animals) + random.randint(-10, 10), 1))
+            self.animals = int(max(animals + (rateGrowAnimals[typeTile] * animals) * (1 - animals / capacityAnimals[typeTile]) * (plants / capacityPlants[typeTile]) - (animalsMortality[typeTile] * animals) - (0.01 * animals / plants + 0.001) + random.randint(-2, 2), 1))
+            
 class Kingdom:
-    def __init__(self, name: str, capital: object, money: int):
+    def __init__(self, name: str, capital: object, pob: int, money: int):
         self.name = name
         self.capital = capital
         self.capitalName = capital
         self.kingdomCitys = []
         self.citysNames = []
+        self.pob = pob
         self.money = money
         
     def __repr__(self):
-        return f"Kingdom '{self.name}'. citys={self.citysNames}, capital={self.capitalName}, money={self.money}"
+        return f"Kingdom '{self.name}'. citys={self.citysNames}, capital={self.capitalName}, pob={self.pob}, money={self.money}"
         
 class City:
     def __init__(self, name: str, kingdom: object, ifCapital: bool, pob: int, money: int, x: int, y: int):
@@ -57,6 +59,55 @@ class City:
         
     def __repr__(self):
         return f"City '{self.name}' from '{self.kingdom.name}' in ({self.x},{self.y}): pob={self.pob}, money={self.money} resources={self.resources}"
+    
+    def cycle(self):
+        tile = tiles[self.x][self.y]
+        #Resource: Food
+        foodConsumed = 0.001 #food consumed everyday by one person in tons
+        foodWorkers = 0.7 #Percent of people working on production of food
+        efficiencyFood = 0.005 #tons produced by one person in one day
+        foodProduced = max(0, int(self.pob * foodWorkers * efficiencyFood * min(1, (tile.plants * 1000) / (self.pob * foodWorkers * efficiencyFood))- self.pob * foodConsumed))
+        self.resources[0] += int(foodProduced * 0.5)
+
+        #Resource: Weapon
+        armyWorkers = 0.05 #Percent of people working on the army
+        weaponsProduced = self.pob * armyWorkers
+        self.money -= int(weaponsProduced * 0.05)
+        self.resources[1] = max(0, int(weaponsProduced))
+
+        #Resource: Wood
+        lumberjackWorkers = 0.1 #Percent of people working on wood
+        efficiencyWood = 1 #tons produced by one person in one day
+        self.resources[2] += max(0, int(self.pob * lumberjackWorkers * efficiencyWood))
+
+        #Update tile
+        tile.plants -= int((self.pob * foodWorkers * efficiencyFood + self.pob * lumberjackWorkers * efficiencyWood)*0.001)
+
+        #pob
+        birthRate = 0.0002 #birth rate per person
+        deathRate = 0.00005 #death rate per person
+        self.pob += int(self.pob * birthRate * min(1, self.resources[0] / (self.pob * foodConsumed)) - self.pob * deathRate)
+
+        if self.pob <= 0:
+            f_deleteCity(self.name)
+            return False
+        
+        #money
+        valueFood = 100
+        self.money += int(foodProduced * 0.5 * valueFood) 
+
+        #Create a new city
+        if (self.money / self.pob) > 2 and self.resources[0] > 10 and self.resources[1] > 100 and self.resources[2] > 5000 and self.money > 5000 and self.pob > 1000:
+            n = True
+            for x in range(-1, 2):
+                for y in range(-1, 2):
+                    if tiles[self.x + x][self.y + y].type >= 1 and tiles[self.x + x][self.y + y].type <= 2 and tiles[self.x + x][self.y + y].ifCity == False and n == True:
+                        f_addCity(f_generateNameRandom(4), self.kingdom, 1000, 500, self.x + x, self.y + y) #Add new city and stuff
+                        self.resources[0] -= 10
+                        self.resources[2] -= 5000
+                        self.money -= 5000
+                        self.pob -= 1000
+                        n = False
         
 #Functions
 
@@ -106,9 +157,11 @@ def f_infoTile(x: int, y: int):
         
 #Kingdom Functions
 
-def f_addKingdom(name: str, capital: object, money: int):
+def f_addKingdom(name: str, capital: object,pob: int, money: int):
     if type(name) != str:
         name = str(name)
+    if type(pob) != int:
+        pob = 0
     if type(money) != int:
         money = 0
     if type(capital) != object:
@@ -118,7 +171,7 @@ def f_addKingdom(name: str, capital: object, money: int):
     kingdomNames = [k.name for k in kingdoms]
     if name in kingdomNames: #Check for a repeated kingdom name
         name = name + "(R)"
-    kingdom = Kingdom(name, capital, money)
+    kingdom = Kingdom(name, capital, pob, money)
     kingdoms.append(kingdom)
     return kingdom
 
@@ -136,7 +189,7 @@ def f_infoKingdoms():
     global kingdoms
     r = ""
     for k in kingdoms:
-        r = r + f"'{k.name}' capital:'{k.capitalName}' money:'{k.money}'\n"
+        r = r + f"'{k.name}' capital:'{k.capitalName}' pob:'{k.pob}' money:'{k.money}'\n"
     return r
                 
 def f_infoKingdom(name: str):
@@ -165,7 +218,7 @@ def f_randomCity(name: str="no name", kingdom: object=None, pob: int=1, money: i
         y = random.randint(0, len(tiles[0])-1)
         tile = tiles[x][y]
         
-        if tile.type >= 1 and tile.type <= 2: #Verify if the tile is valid and call f_addCity
+        if tile.type >= 1 and tile.type <= 2 and tile.ifCity == False: #Verify if the tile is valid and call f_addCity
             return f_addCity(name, kingdom, pob, money, x, y)
         else:
             continue
@@ -191,7 +244,7 @@ def f_addCity(name: str, kingdom: object, pob: int, money: int, x: int, y: int):
     
     ifCapital = False
     if type(kingdom) != Kingdom: #Verify if that kingdom exists, if not, create a new one
-        kingdom = f_addKingdom(f"Kingdom_of_{name}", name, money)
+        kingdom = f_addKingdom(f"Kingdom_of_{name}", name, pob, money)
         ifCapital = True
             
     city = City(name, kingdom, ifCapital, pob, money, x, y) #Create the new city
@@ -262,8 +315,8 @@ def f_start(sizeX: int, sizeY: int, numKingdoms: int=1):
     kingdoms = []
 
     for _ in range(numKingdoms): #Add new kingdoms
-        k = f_addKingdom(f_generateNameRandom(6), None, 5)
-        c = f_randomCity(f_generateNameRandom(4), k, 10, 5)
+        k = f_addKingdom(f_generateNameRandom(6), None, 10000, 500)
+        c = f_randomCity(f_generateNameRandom(4), k, 10000, 500)
         f_newCapital(k, c)
     return True
 
@@ -273,12 +326,42 @@ def f_cycle(days: int=1):
     global citys
     global kingdoms
 
-    for _ in range(days):
+    for d in range(days):
         for x in range(len(tiles)):
             for y in range(len(tiles[0])):
-                tiles[x][y].cycle()
-                #Verify if a city exists, if so, simulate it
+                tiles[x][y].cycle() #Tiles simulation
+                if tiles[x][y].ifCity == True: #Verify if a city exists, if so, simulate it
+                    tiles[x][y].city.cycle()
+        
+        if days > 100:
+            if d == int(days / 10): #Just printing the percents with a horrible 'if statements' code
+                print("10%")
+            elif d == int(days*2 / 10):
+                print("20%")
+            elif d == int(days*3 / 10):
+                print("30%")
+            elif d == int(days*4 / 10):
+                print("40%")
+            elif d == int(days*5 / 10):
+                print("50%")
+            elif d == int(days*6 / 10):
+                print("60%")
+            elif d == int(days*7 / 10):
+                print("70%")
+            elif d == int(days*8 / 10):
+                print("80%")
+            elif d == int(days*9 / 10):
+                print("90%")
+                
     #Update kingdoms info
+    for k in kingdoms:
+        money = 0
+        pob = 0
+        for c in k.kingdomCitys:
+            money += c.money
+            pob += c.pob
+        k.money = money
+        k.pob = pob
     return True
 
 

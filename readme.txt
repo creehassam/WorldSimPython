@@ -2,7 +2,19 @@ Actual Stage --> World Functions
 Actual Version --> 
 
 
-This is for "worldSimPython.py". "commandPanel.py" isn't really important for documentation
+This is for "worldSimPython.py". "commandPanel.py" has just this little part
+
+in commandPanel.py, when you introduces values:
+value* --> the value is the name of a object
+value# --> generate a random name with "value" characters
+
+worldSimPython values
+-1 plant = 1kt (1kiloton)
+-1 animal = 1kt (1kiloton)
+-1 pob = 1 person
+-1 food = 1t (ton)
+-1 money = 1 money (its ficticial so its just "1 money" or "1 unit of money")
+-100 money = 1 food
 
 -----Classes-----
 
@@ -18,6 +30,7 @@ Tile
 -Methods
     -__init__ 
     -__repr__
+    -cycle
 
 Kingdom
 -Attributes
@@ -26,6 +39,7 @@ Kingdom
     -capitalName: str
     -kingdomCitys: list of objects
     -citysNames: list of str
+    -pob: int
     -money: int
 -Methods
     -__init__
@@ -44,6 +58,7 @@ City
 -Methods
     -__init__
     -__repr__
+    -cycle
 
 -----Functions-----
 
@@ -58,7 +73,7 @@ Tile Functions
 -f_infoTile --> x: int, y: int --> Return the repr of a specific tile --> repr(tiles[x][y]): str
 
 Kingdom Functions
--f_addKingdom --> name: str, capital: object, money: int --> Create a new kingdom a add it to kingdoms list --> kingdom: object
+-f_addKingdom --> name: str, capital: object, pob: int, money: int --> Create a new kingdom a add it to kingdoms list --> kingdom: object
 -f_deleteKingdom --> name: str --> Delete a kingdom from kingdoms --> True: Bool / False: Bool
 -f_infoKingdoms --> none --> Return the info of the kingdoms --> r: list
 -f_infoKingdom --> name: str --> return the info of a specific kingdom --> repr(k): str / False: Bool
@@ -73,7 +88,7 @@ City Functions
 
 World Functions
 -f_start --> sizeX: int, sizeY: int, numKingdoms: int=1 --> Starts a new map and a new game --> True: Bool
--f_cycle --> ticks: int=1 --> Simulates 'ticks' times the map -->
+-f_cycle --> days: int=1 --> Simulates the map for x time of days-->
 -----Errors/Bugs/Glitches/etc-----
 
 id --> command --> error or output --> how --> possible explanation
