@@ -34,6 +34,7 @@ def f_checkInput(function, numParameters=0):
                 parameters.append(tiles)
                 parameters.append(kingdoms)
                 parameters.append(citys)
+                parameters.append(history)
                 continue
             else:
                 x = int(x)
@@ -63,7 +64,7 @@ debug = False
 
 while True:
     try:
-        tiles, kingdoms, citys = f_updateLists()
+        tiles, kingdoms, citys, history = f_updateLists()
         answer = f_input()
         answer = answer.split(" ")
 
@@ -169,7 +170,7 @@ while True:
             f_printer(f_day())
 
         elif answer[0].lower() == "graph": #graph
-            if f_checkInput(f_graph, 6) == False:
+            if f_checkInput(f_graph, 7) == False:
                 f_printer("Graph wasn't displayed")
 
         elif answer[0].lower() == "map": #map

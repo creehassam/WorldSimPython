@@ -14,8 +14,8 @@ class Tile:
         self.animals = tileTypeAnimals[type]
         self.ifCity = False
         self.city = None
-        self.Hplants = [self.plants]
-        self.Hanimals = [self.animals]
+        history["tiles"][x][y][0] = [self.plants]
+        history["tiles"][x][y][1] = [self.animals]
         
     def __repr__(self):
         return f"Tile ({self.x},{self.y}): type={self.type}, plants={self.plants}, animals={self.animals}"
@@ -31,10 +31,10 @@ class Tile:
             rateGrowAnimals = [0, 0.04, 0.04, 0]
             capacityAnimals = [0, 22, 20, 0]
             animalsMortality = [0, 0.001, 0.001, 0]
-            self.plants = int(max(plants + (rateGrowPlants[typeTile] * plants) * (1 - plants / capacityPlants[typeTile]) - (plantsConsumed[typeTile] * animals) + random.randint(-10, 10), 1))
-            self.animals = int(max(animals + (rateGrowAnimals[typeTile] * animals) * (1 - animals / capacityAnimals[typeTile]) * (plants / capacityPlants[typeTile]) - (animalsMortality[typeTile] * animals) - (0.01 * animals / plants + 0.001) + random.randint(-2, 2), 1))
-        self.Hplants.append(self.plants)
-        self.Hanimals.append(self.animals)
+            self.plants = math.ceil(max(1, plants + (rateGrowPlants[typeTile] * plants) * (1 - plants / capacityPlants[typeTile]) - (plantsConsumed[typeTile] * animals) + random.randint(-10, 10)))
+            self.animals = math.ceil(max(1, animals + (rateGrowAnimals[typeTile] * animals) * (1 - animals / capacityAnimals[typeTile]) * (plants / capacityPlants[typeTile]) - (animalsMortality[typeTile] * animals) - (0.01 * animals / max(0.1, plants)) + random.randint(-2, 2)))
+            history["tiles"][self.x][self.y][0].append(self.plants)
+            history["tiles"][self.x][self.y][1].append(self.animals)
             
 class Kingdom:
     def __init__(self, name: str, capital: object, pob: int, money: int):
@@ -45,8 +45,8 @@ class Kingdom:
         self.citysNames = []
         self.pob = pob
         self.money = money
-        self.Hpob = [pob]
-        self.Hmoney = [money]
+        history["kingdoms"][self.name][0] = [pob]
+        history["kingdoms"][self.name][1] = [money]
         
     def __repr__(self):
         return f"Kingdom '{self.name}'. citys={self.citysNames}, capital={self.capitalName}, pob={self.pob}, money={self.money}"
@@ -61,8 +61,8 @@ class City:
         self.x = x
         self.y = y
         self.ifCapital = ifCapital
-        self.Hpob = [pob]
-        self.Hmoney = [money]
+        history["citys"][self.name][0] = [pob]
+        history["citys"][self.name][1] = [money]
         
     def __repr__(self):
         return f"City '{self.name}' from '{self.kingdom.name}' in ({self.x},{self.y}): pob={self.pob}, money={self.money} resources={self.resources}"
@@ -70,10 +70,10 @@ class City:
     def cycle(self):
         tile = tiles[self.x][self.y]
         #Resource: Food
-        foodConsumed = 0.001 #food consumed everyday by one person in tons
+        foodConsumed = 0.002 #food consumed everyday by one person in tons
         foodWorkers = 0.7 #Percent of people working on production of food
         efficiencyFood = 0.005 #tons produced by one person in one day
-        foodProduced = max(0, int(self.pob * foodWorkers * efficiencyFood * min(1, (tile.plants * 1000) / (self.pob * foodWorkers * efficiencyFood))- self.pob * foodConsumed))
+        foodProduced = math.ceil(self.pob * foodWorkers * efficiencyFood * 0.5 * min(2, (tile.plants * 1000) / (self.pob * foodWorkers * efficiencyFood))- self.pob * foodConsumed)
         self.resources[0] += int(foodProduced * 0.5)
 
         #Resource: Weapon
@@ -100,7 +100,7 @@ class City:
             return False
         
         #money
-        valueFood = 100
+        valueFood = 1
         self.money += int(foodProduced * 0.5 * valueFood) 
 
         #Create a new city
@@ -118,8 +118,8 @@ class City:
                         self.pob -= 1000
                         n = False
         
-        self.Hpob.append(self.pob)
-        self.Hmoney.append(self.money)
+        history["citys"][self.name][0].append(self.pob)
+        history["citys"][self.name][1].append(self.money)
         
 #Functions
 
@@ -142,13 +142,20 @@ def f_day():
     return day
 
 def f_updateLists():
-    global tiles, kingdoms, citys
-    return tiles, kingdoms, citys
+    global tiles, kingdoms, citys, history
+    return tiles, kingdoms, citys, history
 
 #Tile Functions
 
 def f_createMap(sizeX: int, sizeY: int):
-    global tiles
+    global tiles, history
+
+    for x in range(sizeX): #create history tiles
+        a = {}
+        for y in range(sizeY):
+            a[y] = [[], []]
+        history["tiles"][x] = a
+
     a = []
     if type(sizeX) != int or type(sizeY) != int: #Checking for errors
         return False
@@ -157,6 +164,7 @@ def f_createMap(sizeX: int, sizeY: int):
     
     for x in range(sizeX): #Create the map and the tiles
         b = []
+        c = {}
         for y in range(sizeY):
             if x == 0 or x == sizeX-1 or y == 0 or y == sizeX-1:
                 b.append(Tile(x=x, y=y,type=0))
@@ -192,10 +200,12 @@ def f_addKingdom(name: str, capital: object,pob: int, money: int):
     if type(capital) != object:
         capital = None    
         
-    global kingdoms
+    global kingdoms, history
     kingdomNames = [k.name for k in kingdoms]
     if name in kingdomNames: #Check for a repeated kingdom name
         name = name + "(R)"
+
+    history["kingdoms"][name] = [[], []] #Pob, Money
     kingdom = Kingdom(name, capital, pob, money)
     kingdoms.append(kingdom)
     return kingdom
@@ -260,7 +270,7 @@ def f_addCity(name: str, kingdom: object, pob: int, money: int, x: int, y: int):
     if type(y) != int:
         y = 0     
         
-    global tiles, kingdoms, citys
+    global tiles, kingdoms, citys, history
     
     if tiles[x][y].type < 1 or tiles[x][y].type > 2:
         return False
@@ -270,6 +280,7 @@ def f_addCity(name: str, kingdom: object, pob: int, money: int, x: int, y: int):
         kingdom = f_addKingdom(f"Kingdom_of_{name}", name, pob, money)
         ifCapital = True
             
+    history["citys"][name] = [[], []] #Pob, Money
     city = City(name, kingdom, ifCapital, pob, money, x, y) #Create the new city
     citys.append(city)
     
@@ -393,8 +404,8 @@ def f_cycle(days: int=1):
                 money += c.money
             k.pob = pob
             k.money = money
-            k.Hpob.append(pob)
-            k.Hmoney.append(money)
+            history["kingdoms"][k.name][0].append(pob)
+            history["kingdoms"][k.name][1].append(money)
     return True
 
 
@@ -402,6 +413,7 @@ def f_cycle(days: int=1):
 tiles = []
 kingdoms = []
 citys = []
+history = {"tiles": {}, "kingdoms": {}, "citys": {}}
 day = 0
 
 #Start
