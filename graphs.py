@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap 
+import numpy as np
 
 def f_graph(graph: str, target: str, object: object, tiles: list, kingdoms: list, citys: list):
 
@@ -103,3 +105,32 @@ def f_graph(graph: str, target: str, object: object, tiles: list, kingdoms: list
             return True
 
     return False
+
+def f_map(tiles: list, citys: list):
+
+    map = []
+    for x in range(len(tiles)):
+        a = []
+        for y in range(len(tiles[0])):
+            a.append(tiles[x][y].type)
+        map.append(a)
+    
+    map = np.array(map)
+
+    plt.figure(figsize=(7,7))
+    colors = ListedColormap(["cornflowerblue", "yellowgreen", "lawngreen", "grey"])
+    plt.imshow(map, cmap=colors)
+
+    coords = []
+    letters = []
+    for c in citys:
+        x = c.x
+        y = c.y
+        l = c.kingdom.name[:3]
+        coords.append((x, y))
+        letters.append(l.title())
+    
+    for (x, y), letter in zip(coords, letters):
+        plt.text(y, x, letter, ha='center', va='center', color='snow', fontsize=10, fontweight='bold')
+
+    plt.show()

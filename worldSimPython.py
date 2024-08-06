@@ -1,5 +1,4 @@
 #Libraries
-import numpy as np
 import random as random
 import math as math
 
@@ -111,7 +110,7 @@ class City:
                 for y in range(-1, 2):
                     if self.x + x < 0 or self.y + y < 0:
                         continue
-                    if tiles[self.x + x][self.y + y].type >= 1 and tiles[self.x + x][self.y + y].type <= 2 and tiles[self.x + x][self.y + y].ifCity == False and n == True:
+                    if tiles[self.x + x][self.y + y].type >= 1 and tiles[self.x + x][self.y + y].type <= 2 and tiles[self.x + x][self.y + y].ifCity == False and n == True and (x == 0 or y == 0):
                         f_addCity(f_generateNameRandom(6), self.kingdom, 1000, 500, self.x + x, self.y + y) #Add new city and stuff
                         self.resources[0] -= 10
                         self.resources[2] -= 5000

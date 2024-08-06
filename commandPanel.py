@@ -172,6 +172,9 @@ while True:
             if f_checkInput(f_graph, 6) == False:
                 f_printer("Graph wasn't displayed")
 
+        elif answer[0].lower() == "map": #map
+            f_map(tiles, citys)
+
         else:
             f_printer(f"command '{answer[0]}' is not recognizable", "error")
     except Exception as error:
