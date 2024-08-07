@@ -60,7 +60,7 @@ def f_findObject(name):
     return False
 
 #Variables
-debug = False
+debug = True
 
 while True:
     try:

@@ -11,6 +11,7 @@ class Tile:
         self.y = y
         self.type = type #{0:"sea", 1:"plains", 2:"hills", 3:"mountains"}
         self.plants = tileTypePlants[type]
+        self.capacityPlants = [0, 5000, 4000, 0]
         self.animals = tileTypeAnimals[type]
         self.ifCity = False
         self.city = None
@@ -26,13 +27,12 @@ class Tile:
             animals = self.animals
             typeTile = self.type
             rateGrowPlants = [0, 0.1, 0.1, 0]
-            capacityPlants = [0, 5000, 4000, 0]
             plantsConsumed = [0, 0.001, 0.001, 0]
             rateGrowAnimals = [0, 0.04, 0.04, 0]
             capacityAnimals = [0, 22, 20, 0]
             animalsMortality = [0, 0.001, 0.001, 0]
-            self.plants = math.ceil(max(1, plants + (rateGrowPlants[typeTile] * plants) * (1 - plants / capacityPlants[typeTile]) - (plantsConsumed[typeTile] * animals) + random.randint(-10, 10)))
-            self.animals = math.ceil(max(1, animals + (rateGrowAnimals[typeTile] * animals) * (1 - animals / capacityAnimals[typeTile]) * (plants / capacityPlants[typeTile]) - (animalsMortality[typeTile] * animals) - (0.01 * animals / max(0.1, plants)) + random.randint(-2, 2)))
+            self.plants = math.ceil(max(1, plants + (rateGrowPlants[typeTile] * plants) * (1 - plants / self.capacityPlants[typeTile]) - (plantsConsumed[typeTile] * animals) + random.randint(-10, 10)))
+            self.animals = math.ceil(max(1, animals + (rateGrowAnimals[typeTile] * animals) * (1 - animals / capacityAnimals[typeTile]) * (plants / self.capacityPlants[typeTile]) - (animalsMortality[typeTile] * animals) - (0.01 * animals / max(0.1, plants)) + random.randint(-2, 2)))
             history["tiles"][self.x][self.y][0].append(self.plants)
             history["tiles"][self.x][self.y][1].append(self.animals)
             
@@ -73,8 +73,9 @@ class City:
         foodConsumed = 0.002 #food consumed everyday by one person in tons
         foodWorkers = 0.7 #Percent of people working on production of food
         efficiencyFood = 0.005 #tons produced by one person in one day
-        foodProduced = math.ceil(self.pob * foodWorkers * efficiencyFood * 0.5 * min(2, (tile.plants * 1000) / (self.pob * foodWorkers * efficiencyFood))- self.pob * foodConsumed)
-        self.resources[0] += int(foodProduced * 0.5)
+        maxFoodProduced = tile.plants * 1000 #Maximum of plants producible
+        foodProduced = min(maxFoodProduced, math.ceil(self.pob * foodWorkers * efficiencyFood * min(1, tile.plants / (tile.capacityPlants[tile.type] * 1.5)) - self.pob * foodConsumed))
+        self.resources[0] += max(0, int(foodProduced * 0.5 - self.resources[0] * 0.05))
 
         #Resource: Weapon
         armyWorkers = 0.05 #Percent of people working on the army
@@ -88,7 +89,9 @@ class City:
         self.resources[2] += max(0, int(self.pob * lumberjackWorkers * efficiencyWood))
 
         #Update tile
-        tile.plants -= int((self.pob * foodWorkers * efficiencyFood + self.pob * lumberjackWorkers * efficiencyWood)*0.001)
+        tile.plants -= int((foodProduced + self.pob * foodConsumed + self.pob * lumberjackWorkers * efficiencyWood)*0.001)
+        if tile.plants < 0:
+            tile.plants = 0
 
         #pob
         birthRate = 0.0001 #birth rate per person
@@ -100,22 +103,22 @@ class City:
             return False
         
         #money
-        valueFood = 1
-        self.money += int(foodProduced * 0.5 * valueFood) 
+        valueFood = 100
+        self.money += max(0, int(foodProduced * 0.5 * valueFood)) 
 
         #Create a new city
-        if (self.money / self.pob) > 10 and self.resources[0] > 10 and self.resources[1] > 100 and self.resources[2] > 5000 and self.money > 50000 and self.pob > 1000:
+        if (self.money / self.pob) > 10 and self.resources[0] > 100 and self.resources[1] > 100 and self.resources[2] > 500000 and self.money > 50000 and self.pob > 10000:
             n = True
             for x in range(-1, 2):
                 for y in range(-1, 2):
                     if self.x + x < 0 or self.y + y < 0:
                         continue
                     if tiles[self.x + x][self.y + y].type >= 1 and tiles[self.x + x][self.y + y].type <= 2 and tiles[self.x + x][self.y + y].ifCity == False and n == True and (x == 0 or y == 0):
-                        f_addCity(f_generateNameRandom(6), self.kingdom, 1000, 500, self.x + x, self.y + y) #Add new city and stuff
-                        self.resources[0] -= 10
+                        f_addCity(f_generateNameRandom(6), self.kingdom, 10000, 50000, self.x + x, self.y + y) #Add new city and stuff
+                        self.resources[0] -= 100
                         self.resources[2] -= 5000
                         self.money -= 50000
-                        self.pob -= 1000
+                        self.pob -= 10000
                         n = False
         
         history["citys"][self.name][0].append(self.pob)
@@ -149,6 +152,11 @@ def f_updateLists():
 
 def f_createMap(sizeX: int, sizeY: int):
     global tiles, history
+    
+    if type(sizeX) != int or type(sizeY) != int: #Checking for errors
+        return False
+    if sizeX <= 0 or sizeY <= 0 or sizeX > 100 or sizeY > 100:
+        return False
 
     for x in range(sizeX): #create history tiles
         a = {}
@@ -157,10 +165,6 @@ def f_createMap(sizeX: int, sizeY: int):
         history["tiles"][x] = a
 
     a = []
-    if type(sizeX) != int or type(sizeY) != int: #Checking for errors
-        return False
-    if sizeX <= 0 or sizeY <= 0 or sizeX > 100 or sizeY > 100:
-        return False
     
     for x in range(sizeX): #Create the map and the tiles
         b = []
@@ -241,6 +245,7 @@ def f_newCapital(kingdom: object, newCapital: object):
     if f_infoKingdom(kingdom.name) != False:
         kingdom.capital = newCapital
         kingdom.capitalName = newCapital.name
+        newCapital.ifCapital = True
         return True
     return False
     
@@ -300,6 +305,8 @@ def f_deleteCity(name: str):
     for c in citys:
         if name == c.name: #Search if city exists
             c.kingdom.kingdomCitys.pop(c.kingdom.kingdomCitys.index(c)) #Delete the city from citys and from kingdom
+            c.kingdom.citysNames.pop(c.kingdom.citysNames.index(c.name))
+
             if len(c.kingdom.kingdomCitys) == 0: #Delete the kingdom if it doesn't have any city
                 f_deleteKingdom(c.kingdom.name) 
             elif c.ifCapital == True: #If is a capital, create a new capital
@@ -353,6 +360,9 @@ def f_start(sizeX: int, sizeY: int, numKingdoms: int=1):
     tiles = f_createMap(sizeX, sizeY)
     citys = []
     kingdoms = []
+
+    if tiles == False:
+        return False
 
     for _ in range(numKingdoms): #Add new kingdoms
         k = f_addKingdom(f_generateNameRandom(8), None, 10000, 500)
