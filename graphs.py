@@ -128,6 +128,7 @@ def f_map(tiles: list, citys: list):
     map = np.array(map)
     plt.figure(figsize=(7,7))
     colors = ListedColormap(["cornflowerblue", "yellowgreen", "lawngreen", "grey"])
+    print(map)
     plt.imshow(map, cmap=colors)
 
     coords = []

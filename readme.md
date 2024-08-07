@@ -1,4 +1,4 @@
-Actual Stage --> Output update
+Actual Stage --> Optimization
 Actual Version --> 
 
 
@@ -41,6 +41,7 @@ Kingdom
     -citysNames: list of str
     -pob: int
     -money: int
+    -isDeleting: Bool
 -Methods
     -__init__
     -__repr__
@@ -59,6 +60,7 @@ City
     -__init__
     -__repr__
     -cycle
+    -createNewCity
 
 -----Functions-----
 
@@ -67,6 +69,7 @@ functionName --> Paramaters --> What does --> Output
 Basic Functions
 -f_generateNameRandom --> length: int=6 --> generates a random name with the structure consonant-vowel-consonant-vowel... --> name: str
 -f_day --> none --> return the value of day --> day: int
+-f_updateLists --> none --> It allows me to update the main lists in commandPanel --> da lists x4
 
 Tile Functions
 -f_createMap --> sizeX: int, sizeY: int --> create a new list(tiles) of tiles --> tiles: list
@@ -92,3 +95,6 @@ World Functions
 -f_cycle --> days: int=1 --> Simulates the map for x time of days-->
 -----Errors/Bugs/Glitches/etc-----
 
+-history list is very unoptimal
+-f_graph() and f_map() can be broken with any input that is incorrect
+-the big memory an speed issue

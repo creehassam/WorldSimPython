@@ -64,6 +64,7 @@ debug = True
 
 while True:
     try:
+        gc.collect()
         tiles, kingdoms, citys, history = f_updateLists()
         answer = f_input()
         answer = answer.split(" ")
@@ -111,7 +112,7 @@ while True:
                 f_printer("Kingdom not created", "error")
                 
         elif answer[0].lower() == "deletekingdom" and debug: #deletekingdom
-            if f_checkInput(f_deleteKingdom, 1) != False:
+            if f_checkInput(f_deleteKingdom, 1) == False:
                 f_printer("Kingdom not deleted", "error")
         
         elif answer[0].lower() == "infokingdoms" and debug: #infokingdoms
