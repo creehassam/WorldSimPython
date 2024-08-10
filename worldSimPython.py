@@ -164,6 +164,28 @@ def f_updateLists():
     global tiles, kingdoms, citys, history
     return tiles, kingdoms, citys, history
 
+def f_optimizeHistory():
+    global history
+
+    for x in range(len(history["tiles"])):
+        for y in range(len(history["tiles"][0])):
+            if len(history["tiles"][x][y][0]) > 1000:
+                history["tiles"][x][y][0].pop(random.randint(0, len(history["tiles"][x][y][0]) - 1))
+            if len(history["tiles"][x][y][1]) > 1000:    
+                history["tiles"][x][y][1].pop(random.randint(0, len(history["tiles"][x][y][1]) - 1))
+
+    for name in history["kingdoms"]:
+        if len(history["kingdoms"][name][0]) > 1000:
+            history["kingdoms"][name][0].pop(random.randint(0, len(history["kingdoms"][name][0]) - 1))
+        if len(history["kingdoms"][name][1]) > 1000:    
+            history["kingdoms"][name][1].pop(random.randint(0, len(history["kingdoms"][name][1]) - 1))
+
+    for name in history["citys"]:
+        if len(history["citys"][name][0]) > 1000:
+            history["citys"][name][0].pop(random.randint(0, len(history["citys"][name][0]) - 1))
+        if len(history["citys"][name][1]) > 1000:    
+            history["citys"][name][1].pop(random.randint(0, len(history["citys"][name][1]) - 1))
+
 #Tile Functions
 
 def f_createMap(sizeX: int, sizeY: int):
@@ -392,7 +414,6 @@ def f_start(sizeX: int, sizeY: int, numKingdoms: int=1):
         f_newCapital(k, c)
     return True
 
-
 def f_cycle(days: int=1):
     global tiles
     global citys
@@ -426,7 +447,7 @@ def f_cycle(days: int=1):
                 print("80%")
             elif d == int(days*9 / 10):
                 print("90%")
-                
+
         #Update kingdoms info
         for k in kingdoms:
             pob = 0
@@ -438,6 +459,9 @@ def f_cycle(days: int=1):
             k.money = money
             history["kingdoms"][k.name][0].append(pob)
             history["kingdoms"][k.name][1].append(money)
+
+        if day > 1000:
+            f_optimizeHistory()
 
     return True
 

@@ -95,6 +95,4 @@ World Functions
 -f_cycle --> days: int=1 --> Simulates the map for x time of days-->
 -----Errors/Bugs/Glitches/etc-----
 
--history list is very unoptimal
 -f_graph() and f_map() can be broken with any input that is incorrect
--the big memory an speed issue
