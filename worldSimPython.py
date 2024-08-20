@@ -169,22 +169,22 @@ def f_optimizeHistory():
 
     for x in range(len(history["tiles"])):
         for y in range(len(history["tiles"][0])):
-            if len(history["tiles"][x][y][0]) > 1000:
-                history["tiles"][x][y][0].pop(random.randint(0, len(history["tiles"][x][y][0]) - 1))
-            if len(history["tiles"][x][y][1]) > 1000:    
-                history["tiles"][x][y][1].pop(random.randint(0, len(history["tiles"][x][y][1]) - 1))
+            if len(history["tiles"][x][y][0]) > 10000:
+                history["tiles"][x][y][0].pop(random.randint(0, len(history["tiles"][x][y][0]) - 1) // 10)
+            if len(history["tiles"][x][y][1]) > 10000:    
+                history["tiles"][x][y][1].pop(random.randint(0, len(history["tiles"][x][y][1]) - 1) // 10)
 
     for name in history["kingdoms"]:
-        if len(history["kingdoms"][name][0]) > 1000:
-            history["kingdoms"][name][0].pop(random.randint(0, len(history["kingdoms"][name][0]) - 1))
-        if len(history["kingdoms"][name][1]) > 1000:    
-            history["kingdoms"][name][1].pop(random.randint(0, len(history["kingdoms"][name][1]) - 1))
+        if len(history["kingdoms"][name][0]) > 10000:
+            history["kingdoms"][name][0].pop(random.randint(0, len(history["kingdoms"][name][0]) - 1) // 10)
+        if len(history["kingdoms"][name][1]) > 10000:    
+            history["kingdoms"][name][1].pop(random.randint(0, len(history["kingdoms"][name][1]) - 1) // 10)
 
     for name in history["citys"]:
-        if len(history["citys"][name][0]) > 1000:
-            history["citys"][name][0].pop(random.randint(0, len(history["citys"][name][0]) - 1))
-        if len(history["citys"][name][1]) > 1000:    
-            history["citys"][name][1].pop(random.randint(0, len(history["citys"][name][1]) - 1))
+        if len(history["citys"][name][0]) > 10000:
+            history["citys"][name][0].pop(random.randint(0, len(history["citys"][name][0]) - 1) // 10)
+        if len(history["citys"][name][1]) > 10000:    
+            history["citys"][name][1].pop(random.randint(0, len(history["citys"][name][1]) - 1) // 10)
 
 #Tile Functions
 
@@ -460,7 +460,7 @@ def f_cycle(days: int=1):
             history["kingdoms"][k.name][0].append(pob)
             history["kingdoms"][k.name][1].append(money)
 
-        if day > 1000:
+        if day > 10000:
             f_optimizeHistory()
 
     return True
