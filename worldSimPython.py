@@ -51,7 +51,7 @@ class Kingdom:
         history["kingdoms"][self.name][1] = [money]
         
     def __repr__(self):
-        return f"Kingdom '{self.name}'. citys={self.citysNames}, capital={self.capitalName}, pob={self.pob}, money={self.money}"
+        return f"Kingdom '{self.name}'. citys={self.citysNames}, capital={self.capitalName}, pob={self.pob}, money={self.money}, PIBpercapita={int(self.money / self.pob)}"
         
 class City:
     def __init__(self, name: str, kingdom: object, ifCapital: bool, pob: int, money: int, x: int, y: int):
@@ -69,16 +69,18 @@ class City:
         #Cycle Values
         self.foodConsumed = 0.002 #food consumed everyday by one person in tons
         self.foodWorkers = 0.7 #Percent of people working on production of food
-        self.efficiencyFood = 0.005 #tons produced by one person in one day
+        self.efficiencyFood = 0.5 #tons produced by one person in one day
         self.armyWorkers = 0.05 #Percent of people working on the army
+        self.woodConsumed = 0.05 #wood consumed everyday by one person in tons
         self.lumberjackWorkers = 0.1 #Percent of people working on wood
         self.efficiencyWood = 1 #tons produced by one person in one day
         self.birthRate = 0.0001 #birth rate per person
         self.deathRate = 0.00006 #death rate per person
         self.valueFood = 100
+        self.pobSpents = 10 #Spent for each person in one day
         
     def __repr__(self):
-        return f"City '{self.name}' from '{self.kingdom.name}' in ({self.x},{self.y}): pob={self.pob}, money={self.money} resources={self.resources}"
+        return f"City '{self.name}' from '{self.kingdom.name}' in ({self.x},{self.y}): pob={self.pob}, money={self.money}, PIBpercapita={int(self.money / self.pob)}, resources={self.resources}"
     
     def cycle(self):
         tile = tiles[self.x][self.y]
@@ -92,14 +94,16 @@ class City:
 
         #Resource: Weapon
         armyWorkers = self.armyWorkers
-        weaponsProduced = self.pob * armyWorkers
-        self.money -= int(weaponsProduced * 0.05)
+        weaponsProduced = int(self.pob * armyWorkers)
         self.resources[1] = max(0, int(weaponsProduced))
 
         #Resource: Wood
+        woodConsumed = self.woodConsumed
         lumberjackWorkers = self.lumberjackWorkers
         efficiencyWood = self.efficiencyWood
-        self.resources[2] += max(0, int(self.pob * lumberjackWorkers * efficiencyWood))
+        maxWoodProduced = tile.plants * 100 #Maximum of wood producible
+        woodProduced = min(maxWoodProduced, math.ceil(self.pob * lumberjackWorkers * efficiencyWood * min(1, tile.plants / (tile.capacityPlants[tile.type] * 1.5)) - self.pob * woodConsumed) // 10)
+        self.resources[2] += max(0, int(woodProduced))
 
         #Update tile
         tile.plants -= int((foodProduced + self.pob * foodConsumed + self.pob * lumberjackWorkers * efficiencyWood)*0.001)
@@ -117,7 +121,8 @@ class City:
         
         #money
         valueFood = self.valueFood
-        self.money += max(0, int(foodProduced * 0.5 * valueFood)) 
+        self.money += int(foodProduced * 0.5 * valueFood - foodWorkers - weaponsProduced - lumberjackWorkers - self.pob * self.pobSpents)
+        self.money = max(0, self.money)
 
         #Create a new city
         if (self.money / self.pob) > 10 and self.resources[0] > 100 and self.resources[1] > 100 and self.resources[2] > 500000 and self.money > 50000 and self.pob > 10000:
