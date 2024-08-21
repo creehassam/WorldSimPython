@@ -65,7 +65,7 @@ debug = True
 while True:
     try:
         gc.collect()
-        tiles, kingdoms, citys, history = f_updateLists()
+        tiles, kingdoms, citys, history, relations = f_updateLists()
         answer = f_input()
         answer = answer.split(" ")
 

@@ -166,8 +166,8 @@ def f_day():
     return day
 
 def f_updateLists():
-    global tiles, kingdoms, citys, history
-    return tiles, kingdoms, citys, history
+    global tiles, kingdoms, citys, history, relations
+    return tiles, kingdoms, citys, history, relations
 
 def f_optimizeHistory():
     global history
@@ -190,6 +190,7 @@ def f_optimizeHistory():
             history["citys"][name][0].pop(random.randint(0, len(history["citys"][name][0]) - 1) // 10)
         if len(history["citys"][name][1]) > 10000:    
             history["citys"][name][1].pop(random.randint(0, len(history["citys"][name][1]) - 1) // 10)
+    return True
 
 #Tile Functions
 
@@ -297,6 +298,63 @@ def f_newCapital(kingdom: object, newCapital: object):
         return True
     return False
     
+def f_updateKingdomRelations():
+    global kingdoms, relations
+
+    #Create a new relations lists
+    newRelations = {}
+    for k in kingdoms:
+        newRelations[k.name] = {}
+        for x in range(len(kingdoms)):
+            #Update the relation
+            relation = f_updateAKingdomRelation(k, kingdoms[x])
+            newRelations[k.name][kingdoms[x].name] = relation
+    #Update relations list
+    relations = newRelations
+    return True
+
+def f_updateAKingdomRelation(k1: object, k2: object):
+    relation = 50 #Default relation
+
+    if k1 == k2: #Check if the kingdoms are the same
+        return 100
+    
+    distanceBetweenCapitals = f_distanceBetweenCapitals(k1, k2) #Check the distances between the capitals
+    if distanceBetweenCapitals >= 5:
+        relation += distanceBetweenCapitals * 4
+    elif distanceBetweenCapitals <= 3:
+        relation -= (1 / distanceBetweenCapitals) * 40
+
+    moneyProportion = k1.money / (k2.money + 1) #Check the proportion of the money
+    if moneyProportion > 1.3 and moneyProportion < 0.7:
+        relation += 15
+    else:
+        relation -= 10
+
+    citysProportion = len(k1.citysNames) / len(k2.citysNames) #Check the proportion of the numbers of citys
+    if citysProportion > 1.3 and citysProportion < 0.7:
+        relation += 15
+    else:
+        relation -= 10
+
+    pobProportion = k1.pob / (k2.pob + 1) #Check the proportion of pob
+    if pobProportion > 1.3 and pobProportion < 0.7:
+        relation += 15
+    else:
+        relation -= 10
+
+    relation = max(0, relation) #Relation must be between 0 and 100
+    relation = min(100, relation)
+
+    return int(relation)
+
+def f_distanceBetweenCapitals(k1: object, k2: object):
+    x1 = k1.capital.x
+    y1 = k1.capital.y
+    x2 = k2.capital.x
+    y2 = k2.capital.y
+    distance = ((x1 - x2)**2 + (y1 - y2)**2)**0.5
+    return distance    
 #City Functions
 
 def f_randomCity(name: str="no name", kingdom: object=None, pob: int=1, money: int=1):
@@ -395,9 +453,7 @@ def f_infoCity(name: str):
 #World Functions
 
 def f_start(sizeX: int, sizeY: int, numKingdoms: int=1):
-    global tiles
-    global citys
-    global kingdoms
+    global tiles, citys, kingdoms
 
     if type(sizeX) != int:
         sizeX = 10
@@ -420,10 +476,7 @@ def f_start(sizeX: int, sizeY: int, numKingdoms: int=1):
     return True
 
 def f_cycle(days: int=1):
-    global tiles
-    global citys
-    global kingdoms
-    global day
+    global tiles, citys, kingdoms, day
 
     for d in range(days):
         for x in range(len(tiles)):
@@ -432,6 +485,8 @@ def f_cycle(days: int=1):
                 if tiles[x][y].ifCity == True: #Verify if a city exists, if so, simulate it
                     tiles[x][y].city.cycle()
         day += 1
+        #Update the relations between kingdoms
+        f_updateKingdomRelations()
         
         if days > 500:
             if d == int(days / 10): #Just printing the percents with a horrible 'if statements' code
@@ -470,12 +525,12 @@ def f_cycle(days: int=1):
 
     return True
 
-
 #Variables
 tiles = []
 kingdoms = []
 citys = []
 history = {"tiles": {}, "kingdoms": {}, "citys": {}}
+relations = {}
 day = 0
 
 #Start
