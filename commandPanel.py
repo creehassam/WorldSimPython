@@ -177,6 +177,9 @@ while True:
         elif answer[0].lower() == "map": #map
             f_map(tiles, citys)
 
+        elif answer[0].lower() == "relations": #relations
+            f_relations(kingdoms, relations)
+
         else:
             f_printer(f"command '{answer[0]}' is not recognizable", "error")
     except Exception as error:

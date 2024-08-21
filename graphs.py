@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap 
 import numpy as np
+import seaborn as sns
 
-def f_graph(graph: str, target: str, object: object, tiles: list, kingdoms: list, citys: list, history: list):
+def f_graph(graph: str, target: str, object: object, tiles: list, kingdoms: list, citys: list, history: dict):
 
     if graph.lower() == "pob":
 
@@ -143,3 +144,20 @@ def f_map(tiles: list, citys: list):
         plt.text(x, y, letter, ha='center', va='center', color='snow', fontsize=10, fontweight='bold')
 
     plt.show()
+
+def f_relations(kingdoms: list, relations: dict):
+    relationsList = []
+    names = [k.name for k in kingdoms]
+    for x in relations:
+        a = []
+        for y in relations:
+            a.append(relations[x][y])
+        relationsList.append(a)
+
+    ax = sns.heatmap(relationsList, annot=True, fmt=".0f", cmap="RdYlGn")
+    ax.set_xticklabels(names)
+    ax.set_yticklabels(names)
+    ax.xaxis.set_ticks_position('top')
+    plt.yticks(rotation=90, ha="left")
+    plt.title("Relations")
+    plt.show()    
