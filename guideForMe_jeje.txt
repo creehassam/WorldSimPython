@@ -65,6 +65,16 @@ City
     -cycle
     -createNewCity
 
+Army
+-Attributes
+    -number: int
+    -kingdom: object
+    -originCity: object
+    -actualCity: object
+.Methods
+    -__init__
+    -__repr__
+
 -----Functions-----
 
 functionName --> Paramaters --> What does --> Output

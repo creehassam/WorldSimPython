@@ -63,6 +63,7 @@ class City:
         self.kingdom = kingdom
         self.pob = pob
         self.money = money
+        self.army = 1
         self.resources = [1, 1, 1] #{0:"food", 1:"weapons", 2:"wood"}
         self.x = x
         self.y = y
@@ -92,7 +93,7 @@ class City:
         tile = tiles[self.x][self.y]
 
         #Update Borders
-        self.border()
+        self.updateBorder()
 
         #Resource: Food
         foodConsumed = self.foodConsumed
@@ -155,7 +156,7 @@ class City:
                     self.pob -= 10000
                     n = False
 
-    def border(self):
+    def updateBorder(self):
         for x in range(-1, 2): #Check if there is a city
             for y in range(-1, 2):
                 x = self.x + x
@@ -172,7 +173,17 @@ class City:
                     else:
                         self.inWarBorder = False
         return True
-    
+
+class Army:
+    def __init__(self, kingdom: object, city: object):
+        self.number = 0
+        self.kingdom = kingdom
+        self.originCity = city
+        self.actualCity = city
+
+    def __repr__(self):
+        return f"Army from {self.originCity}, kingdom of {self.kingdom}, is in {self.actualCity}. Number={self.number}"
+
 #Functions
 
 #Basic Functions
