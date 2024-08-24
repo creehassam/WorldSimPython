@@ -50,11 +50,12 @@ class Kingdom:
         self.isDeleting = False
         self.inWar = False
         self.kingdomsInWar = []
+        self.kingdomsNamesInWar = []
         history["kingdoms"][self.name][0] = [pob]
         history["kingdoms"][self.name][1] = [money]
         
     def __repr__(self):
-        return f"Kingdom '{self.name}'. citys={self.citysNames}, capital={self.capitalName}, pob={self.pob}, money={self.money}, PIBpercapita={int(self.money / self.pob)}, Army={self.army}, in war with={self.kingdomsInWar}"
+        return f"Kingdom '{self.name}'. citys={self.citysNames}, capital={self.capitalName}, pob={self.pob}, money={self.money}, PIBpercapita={int(self.money / self.pob)}, Army={self.army}, in war with={self.kingdomsNamesInWar}"
         
 class City:
     def __init__(self, name: str, kingdom: object, ifCapital: bool, pob: int, money: int, x: int, y: int):
@@ -66,6 +67,8 @@ class City:
         self.x = x
         self.y = y
         self.ifCapital = ifCapital
+        self.inBorder = False
+        self.inWarBorder = False
         history["citys"][self.name][0] = [pob]
         history["citys"][self.name][1] = [money]
 
@@ -87,6 +90,10 @@ class City:
     
     def cycle(self):
         tile = tiles[self.x][self.y]
+
+        #Update Borders
+        self.border()
+
         #Resource: Food
         foodConsumed = self.foodConsumed
         foodWorkers = self.foodWorkers
@@ -147,7 +154,25 @@ class City:
                     self.money -= 50000
                     self.pob -= 10000
                     n = False
-        
+
+    def border(self):
+        for x in range(-1, 2): #Check if there is a city
+            for y in range(-1, 2):
+                x = self.x + x
+                y = self.y + y
+                if x < 0 or y < 0:
+                    continue
+                if tiles[x][y].ifCity == True:
+                    if tiles[x][y].city.kingdom != self.kingdom: #Check if there is a border
+                        self.inBorder = True
+                        if tiles[x][y].city.kingdom in self.kingdom.kingdomsInWar: #Check if there is a war border
+                            self.inWarBorder = True
+                        else:
+                            self.inWarBorder = False
+                    else:
+                        self.inWarBorder = False
+        return True
+    
 #Functions
 
 #Basic Functions
@@ -291,7 +316,7 @@ def f_infoKingdoms():
     global kingdoms
     r = ""
     for k in kingdoms:
-        r = r + f"'{k.name}' capital:'{k.capitalName}' pob:'{k.pob}' money:'{k.money}'\n"
+        r = r + repr(k) + "\n"
     return r
                 
 def f_infoKingdom(name: str):
@@ -385,8 +410,10 @@ def f_declareWar():
 
                 k1.inWar = True #Declare war 
                 k1.kingdomsInWar.append(k2)
+                k1.kingdomsNamesInWar.append(k2.name)
                 k2.inWar = True
                 k2.kingdomsInWar.append(k1)
+                k2.kingdomsNamesInWar.append(k1.name)
     return True
 
 #City Functions

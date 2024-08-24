@@ -42,6 +42,7 @@ Kingdom
     -isDeleting: Bool
     -inWar: Bool
     -kingdomsInWar: list of objects
+    -kingdomsNamesInWar: list of str
 -Methods
     -__init__
     -__repr__
@@ -55,7 +56,9 @@ City
     -resources: list of int
     -x: int 
     -y: int 
-    -ifCapital: bool
+    -ifCapital: Bool
+    -inBorder: Bool
+    -inWarBorder: Bool
 -Methods
     -__init__
     -__repr__
