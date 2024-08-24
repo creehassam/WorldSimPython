@@ -40,6 +40,8 @@ Kingdom
     -pob: int
     -money: int
     -isDeleting: Bool
+    -inWar: Bool
+    -kingdomsInWar: list of objects
 -Methods
     -__init__
     -__repr__
@@ -83,7 +85,8 @@ Kingdom Functions
 -f_newCapital --> kingdom: object, newCapital: object --> Assign a new capital to a kingdom --> True: Bool / False: Bool
 -f_updateKingdomRelations --> none --> Update the kingdom's relations --> True: Bool
 -f_updateAKingdomRelation --> k1: object, k2: object --> Calculate a specific relation --> relation: int
--f_distanceBetweenCapitals --> k1: object, k2: object --> Calculate the distance --> distance: int 
+-f_distanceBetweenCapitals --> k1: object, k2: object --> Calculate the distance --> distance: int
+-f_declareWar --> none --> Checks if someone relation is 0, if that is the case, declare the war --> True: Bool 
 
 City Functions
 -f_randomCity --> name: str="no name", kingdom: object=None, pob: int=1, money: int=1 --> Create a new city in a random, but valid, position --> (True: Bool / False: Bool) / False: Bool

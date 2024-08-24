@@ -48,11 +48,13 @@ class Kingdom:
         self.money = money
         self.army = 1
         self.isDeleting = False
+        self.inWar = False
+        self.kingdomsInWar = []
         history["kingdoms"][self.name][0] = [pob]
         history["kingdoms"][self.name][1] = [money]
         
     def __repr__(self):
-        return f"Kingdom '{self.name}'. citys={self.citysNames}, capital={self.capitalName}, pob={self.pob}, money={self.money}, PIBpercapita={int(self.money / self.pob)}, Army={self.army}"
+        return f"Kingdom '{self.name}'. citys={self.citysNames}, capital={self.capitalName}, pob={self.pob}, money={self.money}, PIBpercapita={int(self.money / self.pob)}, Army={self.army}, in war with={self.kingdomsInWar}"
         
 class City:
     def __init__(self, name: str, kingdom: object, ifCapital: bool, pob: int, money: int, x: int, y: int):
@@ -192,6 +194,17 @@ def f_optimizeHistory():
         if len(history["citys"][name][1]) > 10000:    
             history["citys"][name][1].pop(random.randint(0, len(history["citys"][name][1]) - 1) // 10)
     return True
+
+def f_findObject(name):
+    global kingdoms, citys
+
+    for k in kingdoms:
+        if k.name == name:
+            return k
+    for c in citys:
+        if c.name == name:
+            return c
+    return False
 
 #Tile Functions
 
@@ -356,6 +369,25 @@ def f_distanceBetweenCapitals(k1: object, k2: object):
     y2 = k2.capital.y
     distance = ((x1 - x2)**2 + (y1 - y2)**2)**0.5
     return distance    
+
+def f_declareWar():
+    global kingdoms, relations
+
+    for x in relations: #Check if the relation is 0
+        for y in relations:
+            if relations[x][y] <= 0:
+
+                k1 = f_findObject(x) #Find the kingdoms objects
+                k2 = f_findObject(y)
+
+                if k1.inWar == True and k2 in k1.kingdomsInWar or k2.inWar == True and k1 in k2.kingdomsInWar: #Check if they are currently in war
+                    continue
+
+                k1.inWar = True #Declare war 
+                k1.kingdomsInWar.append(k2)
+                k2.inWar = True
+                k2.kingdomsInWar.append(k1)
+    return True
 
 #City Functions
 
@@ -524,6 +556,8 @@ def f_cycle(days: int=1):
             k.army = army
             history["kingdoms"][k.name][0].append(pob)
             history["kingdoms"][k.name][1].append(money)
+
+        f_declareWar()
 
         if day > 10000:
             f_optimizeHistory()

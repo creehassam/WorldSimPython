@@ -50,15 +50,6 @@ def f_checkInput(function, numParameters=0):
         f_printer(f"Parameters aren't correct. Expected:{numParameters}, Recieved:{len(parameters)}")
         return False    
 
-def f_findObject(name):
-    for k in kingdoms:
-        if k.name == name:
-            return k
-    for c in citys:
-        if c.name == name:
-            return c
-    return False
-
 #Variables
 debug = True
 
