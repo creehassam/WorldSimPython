@@ -155,9 +155,10 @@ def f_relations(kingdoms: list, relations: dict):
         relationsList.append(a)
 
     ax = sns.heatmap(relationsList, annot=True, fmt=".0f", cmap="RdYlGn")
+    ax.set_xticks(range(len(names)))
     ax.set_xticklabels(names)
-    ax.set_yticklabels(names)
+    ax.set_yticks(range(len(names)))
+    ax.set_yticklabels(names, rotation=90, ha="left")
     ax.xaxis.set_ticks_position('top')
-    plt.yticks(rotation=90, ha="left")
     plt.title("Relations")
-    plt.show()    
+    plt.show()  

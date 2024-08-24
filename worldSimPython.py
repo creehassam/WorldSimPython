@@ -46,12 +46,13 @@ class Kingdom:
         self.citysNames = []
         self.pob = pob
         self.money = money
+        self.army = 1
         self.isDeleting = False
         history["kingdoms"][self.name][0] = [pob]
         history["kingdoms"][self.name][1] = [money]
         
     def __repr__(self):
-        return f"Kingdom '{self.name}'. citys={self.citysNames}, capital={self.capitalName}, pob={self.pob}, money={self.money}, PIBpercapita={int(self.money / self.pob)}"
+        return f"Kingdom '{self.name}'. citys={self.citysNames}, capital={self.capitalName}, pob={self.pob}, money={self.money}, PIBpercapita={int(self.money / self.pob)}, Army={self.army}"
         
 class City:
     def __init__(self, name: str, kingdom: object, ifCapital: bool, pob: int, money: int, x: int, y: int):
@@ -355,6 +356,7 @@ def f_distanceBetweenCapitals(k1: object, k2: object):
     y2 = k2.capital.y
     distance = ((x1 - x2)**2 + (y1 - y2)**2)**0.5
     return distance    
+
 #City Functions
 
 def f_randomCity(name: str="no name", kingdom: object=None, pob: int=1, money: int=1):
@@ -512,11 +514,14 @@ def f_cycle(days: int=1):
         for k in kingdoms:
             pob = 0
             money = 0
+            army = 0
             for c in k.kingdomCitys:
                 pob += c.pob
                 money += c.money
+                army += c.resources[1]
             k.pob = pob
             k.money = money
+            k.army = army
             history["kingdoms"][k.name][0].append(pob)
             history["kingdoms"][k.name][1].append(money)
 
