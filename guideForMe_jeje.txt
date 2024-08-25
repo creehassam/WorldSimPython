@@ -52,13 +52,17 @@ City
     -name: str
     -kingdom: object
     -pob: int
-    -money: int 
+    -money: int
+    -army: int 
+    -originArmy: object
+    -actualArmy: list of objects
     -resources: list of int
     -x: int 
     -y: int 
     -ifCapital: Bool
     -inBorder: Bool
     -inWarBorder: Bool
+    -Cycle Values (they are like 20): int
 -Methods
     -__init__
     -__repr__
@@ -114,3 +118,4 @@ World Functions
 -----Errors/Bugs/Glitches/etc-----
 
 -f_graph() and f_map() can be broken with any input that is incorrect
+-plants crashes again T_T

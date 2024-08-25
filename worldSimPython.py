@@ -64,6 +64,8 @@ class City:
         self.pob = pob
         self.money = money
         self.army = 1
+        self.originArmy = Army(kingdom, self)
+        self.actualArmy = [self.originArmy]
         self.resources = [1, 1, 1] #{0:"food", 1:"weapons", 2:"wood"}
         self.x = x
         self.y = y
@@ -74,20 +76,26 @@ class City:
         history["citys"][self.name][1] = [money]
 
         #Cycle Values
-        self.foodConsumed = 0.002 #food consumed everyday by one person in tons
-        self.foodWorkers = 0.7 #Percent of people working on production of food
-        self.efficiencyFood = 0.5 #tons produced by one person in one day
+        self.foodConsumed = 0.003 #food consumed everyday by one person in tons
+        self.foodWorkers = 0.8 #Percent of people working on production of food
+        self.foodWorkersSalary = 6 #Salary for food workers
+        self.efficiencyFood = 0.01 #tons produced by one person in one day
         self.armyWorkers = 0.05 #Percent of people working on the army
-        self.woodConsumed = 0.05 #wood consumed everyday by one person in tons
-        self.lumberjackWorkers = 0.1 #Percent of people working on wood
+        self.armyWorkersSalary = 9 #Salary for army workers
+        self.woodConsumed = 0.01 #wood consumed everyday by one person in tons
+        self.lumberjackWorkers = 0.05 #Percent of people working on wood
+        self.lumberjackWorkersSalary = 7 #Salary for lumberjacks
         self.efficiencyWood = 1 #tons produced by one person in one day
         self.birthRate = 0.0001 #birth rate per person
         self.deathRate = 0.00006 #death rate per person
-        self.valueFood = 100
-        self.pobSpents = 10 #Spent for each person in one day
+        self.pobCapacity = 1000000 #Maximum capacity of pob in a tile (arbitrary)
+        self.valueFood = 500
+        self.valueWood = 200
+        self.tax = 5 #Taxes for each person in one day
+        self.pobSpents = 1 #Spent for each person in one day
         
     def __repr__(self):
-        return f"City '{self.name}' from '{self.kingdom.name}' in ({self.x},{self.y}): pob={self.pob}, money={self.money}, PIBpercapita={int(self.money / self.pob)}, resources={self.resources}"
+        return f"City '{self.name}' from '{self.kingdom.name}' in ({self.x},{self.y}): pob={self.pob}, money={self.money}, PIBpercapita={int(self.money / self.pob)}, Army={self.army}, resources={self.resources}"
     
     def cycle(self):
         tile = tiles[self.x][self.y]
@@ -98,15 +106,20 @@ class City:
         #Resource: Food
         foodConsumed = self.foodConsumed
         foodWorkers = self.foodWorkers
-        efficiencyFood = self.efficiencyFood
+        efficiencyFood = self.efficiencyFood * (1 - self.pob / self.pobCapacity)
         maxFoodProduced = tile.plants * 1000 #Maximum of plants producible
-        foodProduced = min(maxFoodProduced, math.ceil(self.pob * foodWorkers * efficiencyFood * min(1, tile.plants / (tile.capacityPlants[tile.type] * 1.5)) - self.pob * foodConsumed))
-        self.resources[0] += max(0, int(foodProduced * 0.5 - self.resources[0] * 0.05))
+        foodProduced = min(maxFoodProduced, math.ceil(self.pob * foodWorkers * efficiencyFood * min(1, tile.plants / (tile.capacityPlants[tile.type]))))
+        self.resources[0] += int(foodProduced - self.pob * foodConsumed - self.resources[0] * 0.05)
+        self.resources[0] = max(0, self.resources[0])
 
         #Resource: Weapon
         armyWorkers = self.armyWorkers
         weaponsProduced = int(self.pob * armyWorkers)
         self.resources[1] = max(0, int(weaponsProduced))
+        self.originArmy.number = self.resources[1]
+        self.army = 0
+        for a in self.actualArmy:
+            self.army += a.number
 
         #Resource: Wood
         woodConsumed = self.woodConsumed
@@ -117,7 +130,7 @@ class City:
         self.resources[2] += max(0, int(woodProduced))
 
         #Update tile
-        tile.plants -= int((foodProduced + self.pob * foodConsumed + self.pob * lumberjackWorkers * efficiencyWood)*0.001)
+        tile.plants -= int((foodProduced + self.pob * lumberjackWorkers * efficiencyWood)*0.001)
         if tile.plants < 0:
             tile.plants = 0
 
@@ -131,12 +144,11 @@ class City:
             return False
         
         #money
-        valueFood = self.valueFood
-        self.money += int(foodProduced * 0.5 * valueFood - foodWorkers - weaponsProduced - lumberjackWorkers - self.pob * self.pobSpents)
+        self.money += int(foodProduced * self.valueFood + woodProduced * self.valueWood + self.pob * self.tax - self.pob * foodWorkers * self.foodWorkersSalary - weaponsProduced * self.armyWorkersSalary - self.pob * lumberjackWorkers * self.lumberjackWorkersSalary - self.pob * self.pobSpents)
         self.money = max(0, self.money)
 
         #Create a new city
-        if (self.money / self.pob) > 10 and self.resources[0] > 100 and self.resources[1] > 100 and self.resources[2] > 500000 and self.money > 50000 and self.pob > 10000:
+        if (self.money / self.pob) > 10 and self.resources[0] > 100 and self.resources[1] > 100 and self.resources[2] > 100000 and self.money > 50000 and self.pob > 10000:
             self.createNewCity()
         
         history["citys"][self.name][0].append(self.pob)
@@ -157,21 +169,19 @@ class City:
                     n = False
 
     def updateBorder(self):
+        b1 = False
+        b2 = False
         for x in range(-1, 2): #Check if there is a city
             for y in range(-1, 2):
-                x = self.x + x
-                y = self.y + y
-                if x < 0 or y < 0:
+                if self.x + x < 0 or self.y + y < 0:
                     continue
-                if tiles[x][y].ifCity == True:
-                    if tiles[x][y].city.kingdom != self.kingdom: #Check if there is a border
-                        self.inBorder = True
-                        if tiles[x][y].city.kingdom in self.kingdom.kingdomsInWar: #Check if there is a war border
-                            self.inWarBorder = True
-                        else:
-                            self.inWarBorder = False
-                    else:
-                        self.inWarBorder = False
+                if tiles[self.x + x][self.y + y].ifCity == True and (x == 0 or y == 0):
+                    if tiles[self.x + x][self.y + y].city.kingdom != self.kingdom: #Check if there is a border
+                        b1 = True
+                        if tiles[self.x + x][self.y + y].city.kingdom in self.kingdom.kingdomsInWar: #Check if there is a war border
+                            b2 = True
+        self.inBorder = b1
+        self.inWarBorder = b2
         return True
 
 class Army:
@@ -213,22 +223,22 @@ def f_optimizeHistory():
 
     for x in range(len(history["tiles"])):
         for y in range(len(history["tiles"][0])):
-            if len(history["tiles"][x][y][0]) > 10000:
-                history["tiles"][x][y][0].pop(random.randint(0, len(history["tiles"][x][y][0]) - 1) // 10)
-            if len(history["tiles"][x][y][1]) > 10000:    
-                history["tiles"][x][y][1].pop(random.randint(0, len(history["tiles"][x][y][1]) - 1) // 10)
+            if len(history["tiles"][x][y][0]) > 100000:
+                history["tiles"][x][y][0].pop(random.randint(0, len(history["tiles"][x][y][0]) - 1))
+            if len(history["tiles"][x][y][1]) > 100000:    
+                history["tiles"][x][y][1].pop(random.randint(0, len(history["tiles"][x][y][1]) - 1))
 
     for name in history["kingdoms"]:
-        if len(history["kingdoms"][name][0]) > 10000:
-            history["kingdoms"][name][0].pop(random.randint(0, len(history["kingdoms"][name][0]) - 1) // 10)
-        if len(history["kingdoms"][name][1]) > 10000:    
-            history["kingdoms"][name][1].pop(random.randint(0, len(history["kingdoms"][name][1]) - 1) // 10)
+        if len(history["kingdoms"][name][0]) > 100000:
+            history["kingdoms"][name][0].pop(random.randint(0, len(history["kingdoms"][name][0]) - 1))
+        if len(history["kingdoms"][name][1]) > 100000:    
+            history["kingdoms"][name][1].pop(random.randint(0, len(history["kingdoms"][name][1]) - 1))
 
     for name in history["citys"]:
-        if len(history["citys"][name][0]) > 10000:
-            history["citys"][name][0].pop(random.randint(0, len(history["citys"][name][0]) - 1) // 10)
-        if len(history["citys"][name][1]) > 10000:    
-            history["citys"][name][1].pop(random.randint(0, len(history["citys"][name][1]) - 1) // 10)
+        if len(history["citys"][name][0]) > 100000:
+            history["citys"][name][0].pop(random.randint(0, len(history["citys"][name][0]) - 1))
+        if len(history["citys"][name][1]) > 100000:    
+            history["citys"][name][1].pop(random.randint(0, len(history["citys"][name][1]) - 1))
     return True
 
 def f_findObject(name):
@@ -245,7 +255,7 @@ def f_findObject(name):
 #Tile Functions
 
 def f_createMap(sizeX: int, sizeY: int):
-    global tiles, history
+    global tiles, history, day
     tiles = []
 
     if type(sizeX) != int or type(sizeY) != int: #Checking for errors
@@ -271,6 +281,7 @@ def f_createMap(sizeX: int, sizeY: int):
             b.append(Tile(x=x, y=y,type=random.randint(0, 3)))
         a.append(b)
     tiles = a
+    day = 0
     return tiles
 
 def f_infoTiles():
@@ -588,7 +599,7 @@ def f_cycle(days: int=1):
             for c in k.kingdomCitys:
                 pob += c.pob
                 money += c.money
-                army += c.resources[1]
+                army += c.army
             k.pob = pob
             k.money = money
             k.army = army
