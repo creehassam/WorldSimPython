@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import random as random
 
 #---PANEL---
-pob = [10000]
+pob = [1000]
 plants = [3000]
 animals = [15]
 food = [15]

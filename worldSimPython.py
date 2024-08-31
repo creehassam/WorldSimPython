@@ -112,7 +112,7 @@ class City:
         self.resources[0] += int(foodProduced - self.pob * foodConsumed - self.resources[0] * 0.05)
         self.resources[0] = max(0, self.resources[0])
 
-        #Resource: Weapon
+        #Resource: Weapon & Army
         armyWorkers = self.armyWorkers
         weaponsProduced = int(self.pob * armyWorkers)
         self.resources[1] = max(0, int(weaponsProduced))
@@ -120,6 +120,9 @@ class City:
         self.army = 0
         for a in self.actualArmy:
             self.army += a.number
+
+        if self.kingdom.inWar == True and len(self.actualArmy) > 0:
+            self.updateArmy()
 
         #Resource: Wood
         woodConsumed = self.woodConsumed
@@ -161,11 +164,11 @@ class City:
                 if self.x + x < 0 or self.y + y < 0:
                     continue
                 if tiles[self.x + x][self.y + y].type >= 1 and tiles[self.x + x][self.y + y].type <= 2 and tiles[self.x + x][self.y + y].ifCity == False and n == True and (x == 0 or y == 0):
-                    f_addCity(f_generateNameRandom(6), self.kingdom, 10000, 50000, self.x + x, self.y + y) #Add new city and stuff
+                    f_addCity(f_generateNameRandom(6), self.kingdom, 1000, 50000, self.x + x, self.y + y) #Add new city and stuff
                     self.resources[0] -= 100
                     self.resources[2] -= 5000
                     self.money -= 50000
-                    self.pob -= 10000
+                    self.pob -= 1000
                     n = False
 
     def updateBorder(self):
@@ -184,15 +187,39 @@ class City:
         self.inWarBorder = b2
         return True
 
+    def updateArmy(self):
+        if self.inWarBorder == True: #Check if is in War border
+            return True
+        
+        n = 4
+        while n > 0:
+            x = random.randint(-1, 2) #Search a random border
+            y = random.randint(-1, 2)
+
+            if self.x + x < 0 or self.y + y < 0 or self.x + x >= len(tiles) or self.y + y >= len(tiles):
+                continue
+
+            tile = tiles[self.x + x][self.y + y]
+            if tile.ifCity == True and tile.city.kingdom == self.kingdom and (x == 0 or y == 0) and len(self.actualArmy) > 0: #Check if the border is a kingdom city
+                tile.city.actualArmy.append(self.actualArmy[-1])
+                tile.city.actualArmy[-1].actualCity = tile.city
+                self.actualArmy.pop()
+            else:
+                n -= 1
+        return True
+                    
 class Army:
     def __init__(self, kingdom: object, city: object):
+        global armys
+
         self.number = 0
         self.kingdom = kingdom
         self.originCity = city
         self.actualCity = city
+        armys.append(self)
 
     def __repr__(self):
-        return f"Army from {self.originCity}, kingdom of {self.kingdom}, is in {self.actualCity}. Number={self.number}"
+        return f"Army from {self.originCity.name}, kingdom of {self.kingdom.name}, is in {self.actualCity.name}. Number={self.number}"
 
 #Functions
 
@@ -559,7 +586,7 @@ def f_start(sizeX: int, sizeY: int, numKingdoms: int=1):
     return True
 
 def f_cycle(days: int=1):
-    global tiles, citys, kingdoms, day
+    global tiles, citys, kingdoms, armys, history, day
 
     for d in range(days):
         for x in range(len(tiles)):
@@ -617,6 +644,7 @@ def f_cycle(days: int=1):
 tiles = []
 kingdoms = []
 citys = []
+armys = []
 history = {"tiles": {}, "kingdoms": {}, "citys": {}}
 relations = {}
 day = 0
