@@ -71,7 +71,9 @@ class City:
         self.y = y
         self.ifCapital = ifCapital
         self.inBorder = False
+        self.inBorderCitys = []
         self.inWarBorder = False
+        self.inWarBorderCitys = []
         history["citys"][self.name][0] = [pob]
         history["citys"][self.name][1] = [money]
 
@@ -124,6 +126,10 @@ class City:
         if self.kingdom.inWar == True and len(self.actualArmy) > 0:
             self.updateArmy()
 
+        #Battle
+        if len(self.inWarBorder) > 0 and self.army > 0:
+            self.battle()
+
         #Resource: Wood
         woodConsumed = self.woodConsumed
         lumberjackWorkers = self.lumberjackWorkers
@@ -172,17 +178,22 @@ class City:
                     n = False
 
     def updateBorder(self):
+        self.inBorderCitys = []
+        self.inWarBorderCitys = []
         b1 = False
         b2 = False
         for x in range(-1, 2): #Check if there is a city
             for y in range(-1, 2):
                 if self.x + x < 0 or self.y + y < 0:
                     continue
-                if tiles[self.x + x][self.y + y].ifCity == True and (x == 0 or y == 0):
-                    if tiles[self.x + x][self.y + y].city.kingdom != self.kingdom: #Check if there is a border
+                tile = tiles[self.x + x][self.y + y]
+                if tile.ifCity == True and (x == 0 or y == 0):
+                    if tile.city.kingdom != self.kingdom: #Check if there is a border
                         b1 = True
-                        if tiles[self.x + x][self.y + y].city.kingdom in self.kingdom.kingdomsInWar: #Check if there is a war border
+                        self.inBorderCitys.append(tile.city)
+                        if tile.city.kingdom in self.kingdom.kingdomsInWar: #Check if there is a war border
                             b2 = True
+                            self.inWarBorderCitys.append(tile.city)
         self.inBorder = b1
         self.inWarBorder = b2
         return True
@@ -207,7 +218,17 @@ class City:
             else:
                 n -= 1
         return True
-                    
+
+    def battle(self):
+        for x in range(-1, 2): #Check if there is a city
+            for y in range(-1, 2):
+                if self.x + x < 0 or self.y + y < 0:
+                    continue
+                tile = tiles[self.x + x][self.y + y]
+                if tile.city in self.inWarBorder:
+                    if self.army > tile.city.army:
+                        f_battle(self, tile.city)    
+
 class Army:
     def __init__(self, kingdom: object, city: object):
         global armys
@@ -559,6 +580,9 @@ def f_infoCity(name: str):
             return repr(c)
         n += 1
     return False
+
+def f_battle(attacker: object, defender: object):
+    difference = attacker.army - defender.army #Army equation
 
 #World Functions
 

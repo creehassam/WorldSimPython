@@ -61,7 +61,9 @@ City
     -y: int 
     -ifCapital: Bool
     -inBorder: Bool
+    -inBorderCitys: list of objects
     -inWarBorder: Bool
+    -inWarBorderCitys: list of objects
     -Cycle Values (they are like 20): int
 -Methods
     -__init__
