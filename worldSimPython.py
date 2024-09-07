@@ -127,7 +127,7 @@ class City:
             self.updateArmy()
 
         #Battle
-        if len(self.inWarBorder) > 0 and self.army > 0:
+        if self.inWarBorder > 0 and self.army > 0:
             self.battle()
 
         #Resource: Wood
@@ -225,7 +225,7 @@ class City:
                 if self.x + x < 0 or self.y + y < 0:
                     continue
                 tile = tiles[self.x + x][self.y + y]
-                if tile.city in self.inWarBorder:
+                if tile.city in self.inWarBorderCitys:
                     if self.army > tile.city.army:
                         f_battle(self, tile.city)    
 
@@ -584,6 +584,25 @@ def f_infoCity(name: str):
 
 def f_battle(attacker: object, defender: object):
     difference = attacker.army - defender.army #Army equation
+    if difference > 1:
+        for a in defender.actualArmy:
+            if difference >= a.number:
+                a.originCity.pob -= a.number
+                difference -= a.number
+                f_deleteArmy(a)
+            else:
+                a.originCity.pob -= difference
+                break
+    else:
+        for a in attacker.actualArmy:
+            if difference >= a.number:
+                a.originCity.pob -= a.number
+                difference -= a.number
+                f_deleteArmy(a)
+            else:
+                a.originCity.pob -= difference
+                break
+    return True
 
 #Army Functions
 

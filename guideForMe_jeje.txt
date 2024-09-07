@@ -113,6 +113,7 @@ City Functions
 -f_deleteCity --> name: str --> Delete a city from citys list and from... everything? i mean is deleting it lol --> True: Bool / False: Bool
 -f_infoCitys --> none --> Return the info of the citys --> r: list
 -f_infoCity --> name: str --> Return the info of a specific city --> repr(c): str / False: Bool
+-f_battle --> attacker: object, defender: object --> Simulates the battle --> True: Bool
 
 Army Functions
 -f_deleteArmy --> army: object --> Deletes a army and creates a new one for the origin city --> True: Bool
