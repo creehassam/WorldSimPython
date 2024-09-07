@@ -114,6 +114,9 @@ City Functions
 -f_infoCitys --> none --> Return the info of the citys --> r: list
 -f_infoCity --> name: str --> Return the info of a specific city --> repr(c): str / False: Bool
 
+Army Functions
+-f_deleteArmy --> army: object --> Deletes a army and creates a new one for the origin city --> True: Bool
+
 World Functions
 -f_start --> sizeX: int, sizeY: int, numKingdoms: int=1 --> Starts a new map and a new game --> True: Bool
 -f_cycle --> days: int=1 --> Simulates the map for x time of days--> True: Bool

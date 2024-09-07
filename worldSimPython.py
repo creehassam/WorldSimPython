@@ -543,6 +543,7 @@ def f_deleteCity(name: str):
         if name == c.name: #Search if city exists
             c.kingdom.kingdomCitys.pop(c.kingdom.kingdomCitys.index(c)) #Delete the city from citys and from kingdom
             c.kingdom.citysNames.pop(c.kingdom.citysNames.index(c.name))
+            f_deleteArmy(c.originArmy())
 
             if len(c.kingdom.kingdomCitys) == 0 and c.kingdom.isDeleting == False: #Delete the kingdom if it doesn't have any city
                 f_deleteKingdom(c.kingdom.name) 
@@ -583,6 +584,15 @@ def f_infoCity(name: str):
 
 def f_battle(attacker: object, defender: object):
     difference = attacker.army - defender.army #Army equation
+
+#Army Functions
+
+def f_deleteArmy(army: object):
+    city = army.actualCity
+    city.actualArmy.pop(city.actualArmy.index(army))
+    originCity = army.originCity
+    originCity.originArmy = Army(originCity.kingdom, originCity)
+    return True
 
 #World Functions
 
