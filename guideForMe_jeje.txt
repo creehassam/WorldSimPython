@@ -43,6 +43,7 @@ Kingdom
     -inWar: Bool
     -kingdomsInWar: list of objects
     -kingdomsNamesInWar: list of str
+    -inBorderKingdoms: dict of objects: ints
 -Methods
     -__init__
     -__repr__
@@ -114,6 +115,7 @@ City Functions
 -f_infoCitys --> none --> Return the info of the citys --> r: list
 -f_infoCity --> name: str --> Return the info of a specific city --> repr(c): str / False: Bool
 -f_battle --> attacker: object, defender: object --> Simulates the battle --> True: Bool
+-f_conquest --> kingdom: object, city: object --> Conquest a city for a kingdom --> True: Bool
 
 Army Functions
 -f_deleteArmy --> army: object --> Deletes a army and creates a new one for the origin city --> True: Bool

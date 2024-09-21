@@ -51,12 +51,23 @@ class Kingdom:
         self.inWar = False
         self.kingdomsInWar = []
         self.kingdomsNamesInWar = []
+        self.inBorderKingdoms = {}
         history["kingdoms"][self.name][0] = [pob]
         history["kingdoms"][self.name][1] = [money]
         
     def __repr__(self):
         return f"Kingdom '{self.name}'. citys={self.citysNames}, capital={self.capitalName}, pob={self.pob}, money={self.money}, PIBpercapita={int(self.money / self.pob)}, Army={self.army}, in war with={self.kingdomsNamesInWar}"
-        
+
+    def updateBorder(self):
+        self.inBorderKingdoms = {}
+        for c in self.kingdomCitys:
+            for c in c.inBorderCitys:
+                k = c.kingdom
+                if k not in self.inBorderKingdoms:
+                    self.inBorderKingdoms[k] = 1
+                else:
+                    self.inBorderKingdoms[k] += 1
+
 class City:
     def __init__(self, name: str, kingdom: object, ifCapital: bool, pob: int, money: int, x: int, y: int):
         self.name = name
@@ -433,8 +444,11 @@ def f_updateAKingdomRelation(k1: object, k2: object):
     distanceBetweenCapitals = f_distanceBetweenCapitals(k1, k2) #Check the distances between the capitals
     if distanceBetweenCapitals >= 5:
         relation += distanceBetweenCapitals * 4
-    elif distanceBetweenCapitals <= 3:
+    elif distanceBetweenCapitals <= 5:
         relation -= (1 / distanceBetweenCapitals) * 40
+
+    if k2 in k1.inBorderKingdoms: #Check the distances between the capitals
+        relation -= 20 * k1.inBorderKingdoms[k2]
 
     moneyProportion = k1.money / (k2.money + 1) #Check the proportion of the money
     if moneyProportion > 1.3 and moneyProportion < 0.7:
