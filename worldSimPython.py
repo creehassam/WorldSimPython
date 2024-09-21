@@ -170,7 +170,8 @@ class City:
                 if self.x + x < 0 or self.y + y < 0:
                     continue
                 if tiles[self.x + x][self.y + y].type >= 1 and tiles[self.x + x][self.y + y].type <= 2 and tiles[self.x + x][self.y + y].ifCity == False and n == True and (x == 0 or y == 0):
-                    f_addCity(f_generateNameRandom(6), self.kingdom, 1000, 50000, self.x + x, self.y + y) #Add new city and stuff
+                    newCity = f_addCity(f_generateNameRandom(6), self.kingdom, 1000, 50000, self.x + x, self.y + y) #Add new city and stuff
+                    print(f"City {newCity.name} was created in ({self.x + x},{self.y + y})")
                     self.resources[0] -= 100
                     self.resources[2] -= 5000
                     self.money -= 50000
@@ -380,6 +381,7 @@ def f_deleteKingdom(name: str):
             gc.collect()
             return True
         n += 1
+    f_infoKingdoms()
     return False
 
 def f_infoKingdoms():
@@ -583,25 +585,56 @@ def f_infoCity(name: str):
     return False
 
 def f_battle(attacker: object, defender: object):
+    print(f"Battle between {attacker.name}({attacker.army}) and {defender.name}({defender.army})")
     difference = attacker.army - defender.army #Army equation
-    if difference > 1:
+    if difference >= 1: #Attacker wins
+        print(f"Attacker wins")
         for a in defender.actualArmy:
-            if difference >= a.number:
-                a.originCity.pob -= a.number
-                difference -= a.number
-                f_deleteArmy(a)
-            else:
-                a.originCity.pob -= difference
-                break
-    else:
+            a.originCity.pob -= a.number
+            f_deleteArmy(a)
         for a in attacker.actualArmy:
             if difference >= a.number:
                 a.originCity.pob -= a.number
                 difference -= a.number
                 f_deleteArmy(a)
-            else:
+            else:   
                 a.originCity.pob -= difference
                 break
+
+        defender.updateArmy()
+        if defender.army <= 0 and attacker.army >= 1:
+            f_conquest(attacker.kingdom, defender)
+    else: #Defender wins
+        print(f"Defender wins")
+        for a in attacker.actualArmy:
+            a.originCity.pob -= a.number
+            f_deleteArmy(a)
+        for a in defender.actualArmy:
+            if difference >= a.number:
+                a.originCity.pob -= a.number
+                difference -= a.number
+                f_deleteArmy(a)
+            else:   
+                a.originCity.pob -= difference
+                break
+    return True
+
+def f_conquest(kingdom: object, city: object):
+    print(f"City {city.name} in ({city.x},{city.y}) was conquested by {kingdom.name}")
+    k = city.kingdom    
+    k.kingdomCitys.pop(k.kingdomCitys.index(city)) #Update k values
+    k.citysNames.pop(k.citysNames.index(city.name))
+
+    if len(k.kingdomCitys) <= 0:
+        city.kingdom = kingdom
+        f_deleteKingdom(k.name)
+    elif k.capital == city:
+        f_newCapital(k, k.kingdomCitys[0])
+    
+    del k
+    kingdom.kingdomCitys.append(city) #Add the city info
+    kingdom.citysNames.append(city.name)
+    city.kingdom = kingdom
     return True
 
 #Army Functions
